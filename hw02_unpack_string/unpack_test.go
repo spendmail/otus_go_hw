@@ -44,7 +44,7 @@ func TestUnpackStringStartsWithDigit(t *testing.T) {
 	}
 }
 
-func TestUnpackStringContainsNumber(t *testing.T) {
+func TestUnpackStringContainsDoubleDigit(t *testing.T) {
 	invalidStrings := []string{"aaa10b"}
 	for _, tc := range invalidStrings {
 		tc := tc

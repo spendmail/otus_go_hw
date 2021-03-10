@@ -1,6 +1,7 @@
 package hw03frequencyanalysis
 
 import (
+	"errors"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -43,12 +44,16 @@ var text = `Как видите, он  спускается  по  лестни�
 	посидеть у огня и послушать какую-нибудь интересную сказку.
 		В этот вечер...`
 
+var tooShortText = "cat and dog, one dog,two cats and one man"
+
 func TestTop10(t *testing.T) {
 	t.Run("no words in empty string", func(t *testing.T) {
-		require.Len(t, Top10(""), 0)
+		top10Slice, _ := Top10("")
+		require.Len(t, top10Slice, 0)
 	})
 
 	t.Run("positive test", func(t *testing.T) {
+		top10Slice, _ := Top10(text)
 		if taskWithAsteriskIsCompleted {
 			expected := []string{
 				"а",         // 8
@@ -62,7 +67,7 @@ func TestTop10(t *testing.T) {
 				"кристофер", // 4
 				"не",        // 4
 			}
-			require.Equal(t, expected, Top10(text))
+			require.Equal(t, expected, top10Slice)
 		} else {
 			expected := []string{
 				"он",        // 8
@@ -76,7 +81,12 @@ func TestTop10(t *testing.T) {
 				"не",        // 4
 				"то",        // 4
 			}
-			require.Equal(t, expected, Top10(text))
+			require.Equal(t, expected, top10Slice)
 		}
+	})
+
+	t.Run("too short text error", func(t *testing.T) {
+		_, err := Top10(tooShortText)
+		require.Truef(t, errors.Is(err, ErrTextShorterThenNeeded), "actual error %q", err)
 	})
 }

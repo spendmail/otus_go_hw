@@ -4,9 +4,12 @@ import (
 	"errors"
 	"io"
 	"os"
+
+	"github.com/cheggaaa/pb"
 )
 
 var (
+	step                         = int64(1024 * 1024)
 	ErrUnsupportedFile           = errors.New("unsupported file")
 	ErrOffsetExceedsFileSize     = errors.New("offset exceeds file size")
 	ErrSourceFileNotFound        = errors.New("source file is not found")
@@ -68,10 +71,29 @@ func Copy(fromPath, toPath string, offset, limit int64) error {
 		limit = srcFileSize - offset
 	}
 
-	// Trying to copy n byte to destination file
-	if _, err := io.CopyN(dstFile, srcFile, limit); err != nil {
-		return ErrFileCopy
+	// Defines a progress bar
+	bar := pb.StartNew(int(limit))
+
+	// Trying to copy n byte to destination file in the loop by step bytes per time
+	for limit > 0 {
+		if step >= limit {
+			step = limit
+		}
+
+		// Copying step bytes into a destination file
+		_, err = io.CopyN(dstFile, srcFile, step)
+		if err != nil {
+			return ErrFileCopy
+		}
+
+		// Adding values into a progress bar
+		bar.Add(int(step))
+
+		limit -= step
 	}
+
+	// Finishing progress bar's work
+	bar.FinishPrint("Done!")
 
 	return nil
 }

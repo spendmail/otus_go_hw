@@ -1,9 +1,5 @@
 package hw06pipelineexecution
 
-import (
-	"sync"
-)
-
 type (
 	In  = <-chan interface{}
 	Out = In
@@ -12,63 +8,33 @@ type (
 
 type Stage func(in In) (out Out)
 
-// Mutex for locking/unlocking isDone flag.
-var mutex = &sync.RWMutex{}
-
-// Flag to determine is terminating flag sent.
-var isDoneFlag bool = false
-
-// IsDone flag setter.
-func setDoneFlag(value bool) {
-	mutex.Lock()
-	isDoneFlag = value
-	mutex.Unlock()
-}
-
-// IsDone flag getter.
-func isDone() bool {
-	defer mutex.RUnlock()
-	mutex.RLock()
-	return isDoneFlag
-}
-
-// Returning Stage that closes next Stage input Channel, if done signal has been sent.
-func getStageSplitter() func(in In) Out {
-	return func(in In) Out {
+// Executes pipeline by given input channel and stages slice.
+func ExecutePipeline(in In, done In, stages ...Stage) Out {
+	// Splitter stage closes next Stage input Channel, if done signal has been sent
+	stageSplitter := func(in In) Out {
 		out := make(Bi)
 		go func() {
-			for v := range in {
-				if isDone() {
-					// If terminating signal has been send, closing output channel,
-					// to break the next Stage input Channel reading loop
+			for {
+				select {
+				case <-done:
 					close(out)
 					return
+				case v, ok := <-in:
+					if !ok {
+						close(out)
+						return
+					}
+					out <- v
 				}
-				out <- v
 			}
-			close(out)
 		}()
 		return out
 	}
-}
-
-// Executes pipeline by given input channel and stages slice.
-func ExecutePipeline(in In, done In, stages ...Stage) Out {
-	// IsDone flag is false by default
-	setDoneFlag(false)
-
-	// Launching a goroutine for terminating channel listening
-	if done != nil {
-		go func() {
-			<-done
-			setDoneFlag(true)
-		}()
-	}
 
 	// Splitting up the stages slice by splitter stage
-	splitStages := []Stage{}
+	splitStages := make([]Stage, 0, len(stages)*2)
 	for _, stage := range stages {
-		splitStages = append(splitStages, getStageSplitter())
+		splitStages = append(splitStages, stageSplitter)
 		splitStages = append(splitStages, stage)
 	}
 

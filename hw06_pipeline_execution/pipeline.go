@@ -14,17 +14,31 @@ func ExecutePipeline(in In, done In, stages ...Stage) Out {
 	stageSplitter := func(in In) Out {
 		out := make(Bi)
 		go func() {
+			// Closing "out" channel anyway, when returning from the function
+			defer close(out)
 			for {
+				// Listening both "done" and "in" channels
 				select {
+				// In case of "done" channel closing, return from stage and close "out" channel
 				case <-done:
-					close(out)
 					return
+				// In case of previous stage wrote in the "in" channel, or closed them
 				case v, ok := <-in:
+					// Returning if "in" channel is closed (and close "out" channel as well)
 					if !ok {
-						close(out)
 						return
 					}
-					out <- v
+					// If "in" channel is not closed, trying to write received value to "out" channel
+					// Using "select" syntax, to prevent locking, if the receiving stage is already not listening,
+					// but the "out" channel is still not closed
+					select {
+					// We need to listen "done" channel twice, in case of "input" value already received
+					// but the receiver stage is not responding
+					case <-done:
+						return
+					// And finally writing to the "out" channel
+					case out <- v:
+					}
 				}
 			}
 		}()

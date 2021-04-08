@@ -1,21 +1,22 @@
 package main
 
 import (
-	"fmt"
+	"log"
 	"os"
 )
 
 func main() {
-
-	//args := os.Args[1:]
+	// Parsing the arguments.
 	path := os.Args[1]
+	cmd := os.Args[2:]
 
-	environmentMap, err := ReadDir(path)
+	// Reading env dir.
+	env, err := ReadDir(path)
 	if err != nil {
-
+		log.Fatal(err)
 	}
 
-	for key, value := range environmentMap {
-		fmt.Println(key, value.Value)
-	}
+	// Executing commands.
+	exitCode := RunCmd(cmd, env)
+	os.Exit(exitCode)
 }

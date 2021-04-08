@@ -1,17 +1,28 @@
 package main
 
 import (
-	"bufio"
+	"bytes"
 	"errors"
+	"fmt"
 	"io/ioutil"
 	"os"
 	"path"
+	"strings"
 )
 
 var (
-	ErrUnreadableDir  = errors.New("unable to read the dir")
-	ErrUnreadableFile = errors.New("unable to read the file")
-	ErrUnreadableLine = errors.New("unable to read the file's line")
+	replacingCharacterByte     = byte(0x00)
+	linesDelimiter             = '\n'
+	linesDelimiterByte         = byte(linesDelimiter)
+	linesDelimiterUint8        = uint8(linesDelimiter)
+	unacceptableCharacterUint8 = uint8('=')
+	trimCharacters             = "\t "
+)
+
+var (
+	ErrFileNotReadable       = errors.New("unable to read file")
+	ErrDirNotReadable        = errors.New("unable to read dir")
+	ErrUnacceptableCharacter = errors.New("the file has an unacceptable characters")
 )
 
 type Environment map[string]EnvValue
@@ -25,36 +36,61 @@ type EnvValue struct {
 // ReadDir reads a specified directory and returns map of env variables.
 // Variables represented as files where filename is name of variable, file first line is a value.
 func ReadDir(dir string) (Environment, error) {
-
 	environmentMap := make(Environment)
 
-	content, err := ioutil.ReadDir(dir)
+	// Reading the dir.
+	fileInfos, err := ioutil.ReadDir(dir)
 	if err != nil {
-		return nil, ErrUnreadableDir
+		return nil, fmt.Errorf("%w: %v", ErrDirNotReadable, dir)
 	}
 
-	for _, fileInfo := range content {
+	// Directory files loop.
+	for _, fileInfo := range fileInfos {
 		filePath := path.Join(dir, fileInfo.Name())
+		fileSize := fileInfo.Size()
 
-		file, err := os.OpenFile(filePath, os.O_RDONLY, 0)
-		if err != nil {
-			return nil, ErrUnreadableFile
+		// If file is empty, setting the flag "NeedRemove".
+		if fileSize == 0 {
+			environmentMap[fileInfo.Name()] = EnvValue{Value: "", NeedRemove: true}
+			continue
 		}
+
+		// Opening the file.
+		file, err := os.Open(filePath)
+		if err != nil {
+			return nil, fmt.Errorf("%w: %v", ErrFileNotReadable, filePath)
+		}
+
 		defer file.Close()
 
-		reader := bufio.NewReader(file)
-		firstLine, err := reader.ReadString('\n')
+		// Reading the file.
+		fileBytes := make([]byte, fileSize)
+		_, err = file.Read(fileBytes)
 		if err != nil {
-			return nil, ErrUnreadableLine
+			return nil, fmt.Errorf("%w: %v", ErrFileNotReadable, filePath)
 		}
 
-		//@Todo: если файл полностью пустой (длина - 0 байт), то envdir удаляет переменную окружения с именем S
-		//@Todo: имя S не должно содержать =
-		//@Todo: пробелы и табуляция в конце T удаляются
-		//@Todo: терминальные нули (0x00) заменяются на перевод строки (\\n);
-		//@Todo: if trim(line) != "" then set
+		// Taking the first line.
+		for i, v := range fileBytes {
+			// If the content has the unacceptable character, returning with error.
+			if v == unacceptableCharacterUint8 {
+				return nil, fmt.Errorf("%w: %v", ErrUnacceptableCharacter, filePath)
+			}
 
-		environmentMap[fileInfo.Name()] = EnvValue{Value: firstLine, NeedRemove: false}
+			// Taking the sub-slice before the delimiter.
+			if v == linesDelimiterUint8 {
+				fileBytes = fileBytes[0:i]
+				break
+			}
+		}
+
+		// Replace \0 by "linesDelimiterByte".
+		fileBytes = bytes.ReplaceAll(fileBytes, []byte{replacingCharacterByte}, []byte{linesDelimiterByte})
+
+		// Trim from the right side.
+		value := strings.TrimRight(string(fileBytes), trimCharacters)
+
+		environmentMap[fileInfo.Name()] = EnvValue{Value: value, NeedRemove: false}
 	}
 
 	return environmentMap, nil

@@ -33,6 +33,26 @@ type EnvValue struct {
 	NeedRemove bool
 }
 
+// Returns N bytes from file by given filename and fileSize.
+func getFileBytes(filePath string, fileSize int64) ([]byte, error) {
+	// Opening the file.
+	file, err := os.Open(filePath)
+	if err != nil {
+		return nil, fmt.Errorf("%w: %v", ErrFileNotReadable, filePath)
+	}
+
+	defer file.Close()
+
+	// Reading the file.
+	fileBytes := make([]byte, fileSize)
+	_, err = file.Read(fileBytes)
+	if err != nil {
+		return nil, fmt.Errorf("%w: %v", ErrFileNotReadable, filePath)
+	}
+
+	return fileBytes, nil
+}
+
 // ReadDir reads a specified directory and returns map of env variables.
 // Variables represented as files where filename is name of variable, file first line is a value.
 func ReadDir(dir string) (Environment, error) {
@@ -55,19 +75,9 @@ func ReadDir(dir string) (Environment, error) {
 			continue
 		}
 
-		// Opening the file.
-		file, err := os.Open(filePath)
+		fileBytes, err := getFileBytes(filePath, fileSize)
 		if err != nil {
-			return nil, fmt.Errorf("%w: %v", ErrFileNotReadable, filePath)
-		}
-
-		defer file.Close()
-
-		// Reading the file.
-		fileBytes := make([]byte, fileSize)
-		_, err = file.Read(fileBytes)
-		if err != nil {
-			return nil, fmt.Errorf("%w: %v", ErrFileNotReadable, filePath)
+			return nil, err
 		}
 
 		// Taking the first line.

@@ -2,8 +2,10 @@ package main
 
 import (
 	"errors"
+	"io/ioutil"
+	"log"
 	"os"
-	"path"
+	"path/filepath"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -11,50 +13,58 @@ import (
 
 func TestReadDir(t *testing.T) {
 	t.Run("dir is not readable test", func(t *testing.T) {
-		dir := "/tmp/unreadable_dir"
+		dir, err := ioutil.TempDir("", "temporary")
+		if err != nil {
+			log.Fatal(err)
+		}
 
-		_ = os.Mkdir(dir, 0o300)
+		defer os.RemoveAll(dir)
 
-		_, err := ReadDir(dir)
+		err = os.Chmod(dir, 0o300)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		_, err = ReadDir(dir)
 
 		require.Truef(t, errors.Is(err, ErrDirNotReadable), "actual error %q", err)
-
-		_ = os.Remove(dir)
 	})
 
 	t.Run("file is not readable test", func(t *testing.T) {
-		dir := "/tmp/readable_dir"
-		file := "TEST"
+		content := []byte("VALUE")
+		dir, err := ioutil.TempDir("", "temporary")
+		if err != nil {
+			log.Fatal(err)
+		}
 
-		_ = os.Mkdir(dir, 0o755)
-		filePath := path.Join(dir, file)
-		f, _ := os.OpenFile(filePath, os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0o300)
-		_, _ = f.WriteString("VALUE\n")
-		_ = f.Close()
+		defer os.RemoveAll(dir)
 
-		_, err := ReadDir(dir)
+		filePath := filepath.Join(dir, "NAME")
+		if err := ioutil.WriteFile(filePath, content, 0o300); err != nil {
+			log.Fatal(err)
+		}
+
+		_, err = ReadDir(dir)
 
 		require.Truef(t, errors.Is(err, ErrFileNotReadable), "actual error %q", err)
-
-		_ = os.Remove(filePath)
-		_ = os.Remove(dir)
 	})
 
 	t.Run("unacceptable character test", func(t *testing.T) {
-		dir := "/tmp/readable_dir"
-		file := "TEST"
+		content := []byte("VALUE=\n")
+		dir, err := ioutil.TempDir("", "temporary")
+		if err != nil {
+			log.Fatal(err)
+		}
 
-		_ = os.Mkdir(dir, 0o755)
-		filePath := path.Join(dir, file)
-		f, _ := os.OpenFile(filePath, os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0o755)
-		_, _ = f.WriteString("VALUE=\n")
-		_ = f.Close()
+		defer os.RemoveAll(dir)
 
-		_, err := ReadDir(dir)
+		filePath := filepath.Join(dir, "NAME")
+		if err := ioutil.WriteFile(filePath, content, 0o666); err != nil {
+			log.Fatal(err)
+		}
+
+		_, err = ReadDir(dir)
 
 		require.Truef(t, errors.Is(err, ErrUnacceptableCharacter), "actual error %q", err)
-
-		_ = os.Remove(filePath)
-		_ = os.Remove(dir)
 	})
 }

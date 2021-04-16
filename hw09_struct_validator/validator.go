@@ -1,124 +1,113 @@
-package main
+package hw09structvalidator
 
 import (
-	"encoding/json"
+	"bytes"
 	"errors"
 	"fmt"
 	"reflect"
 	"regexp"
 )
 
-//package hw09structvalidator
-
+// Validation tag name.
 const TagName = "validate"
 
+// Struct for the validation error.
 type ValidationError struct {
 	Field string
 	Err   error
 }
 
+// Validation errors slice type.
 type ValidationErrors []ValidationError
 
+// Implementation of the error interface by validation accumulator.
 func (v ValidationErrors) Error() string {
-	panic("implement me")
+	var buffer bytes.Buffer
+
+	for _, validationError := range v {
+		buffer.WriteString(fmt.Sprintf("field: %v, error: %v\n", validationError.Field, validationError.Err))
+	}
+
+	return buffer.String()
 }
 
-func parseValidateTag(s string) {
+var (
+	ErrNotAStruct              = errors.New("given type is not a struct")
+	ErrWrongFieldType          = errors.New("wrong field type")
+	ErrWrongValidatorValue     = errors.New("wrong validator value")
+	ErrNotImplementedValidator = errors.New("validator is not implemented")
+	validationErrors           ValidationErrors
+	tagParsingRegexp           = regexp.MustCompile(`\s*([\w]+)\s*:\s*([^|]+)\s*`)
+)
 
-	fmt.Printf("%T = \"%v\"\n", s, s) //string = min:18|max:50
-	re := regexp.MustCompile(`\s*([\w]+)\s*:\s*([^|]+)\s*`)
-	fmt.Printf("%q\n", re.FindAllStringSubmatch(s, -1))
+// Parses tag value with regular expressions.
+func parseValidateTag(s string) [][]string {
+	return tagParsingRegexp.FindAllStringSubmatch(s, -1)
 }
 
+// Explores given structure and returns either error or slice of validation errors.
 func Validate(v interface{}) error {
+	// Initializing a slice for validation errors.
+	validationErrors = ValidationErrors{}
 
+	// Getting reflect.Value of the struct.
 	value := reflect.ValueOf(v)
 
+	// If pointer given, getting appropriate value.
 	if value.Kind() == reflect.Ptr {
 		value = value.Elem()
 	}
 
+	// Checking whether a struct given or not.
 	if value.Kind() != reflect.Struct {
-		return errors.New("not a struct")
+		return ErrNotAStruct
 	}
 
+	// Getting reflect type of the struct.
 	valueType := value.Type()
 
+	// Struct types loop.
 	for i := 0; i < value.NumField(); i++ {
-		fmt.Println("==========")
-		//valueField := value.Field(i)
-		//valueTypeField := valueType.Field(i)
+		// Getting the field of the struct.
+		field := valueType.Field(i)
+
+		// Getting the tag of the struct
 		tag := valueType.Field(i).Tag
 
-		//fmt.Printf("%T = %v\n", valueField, valueField)         // reflect.Value = 20
-		//fmt.Printf("%T = %v\n", valueTypeField, valueTypeField) // reflect.StructField = {Age  int validate:"min:18|max:50" 32 [2] false}
-		//fmt.Printf("%T = %v\n", tag, tag)                       // reflect.StructTag = validate:"min:18|max:50"
-
+		// Searching for the validation tag.
 		tagValue, ok := tag.Lookup(TagName)
 		if !ok {
 			continue
 		}
 
+		// If validation tag is empty.
 		if tagValue == "" {
 			continue
 		}
 
-		//fmt.Printf("%T = %v\n", tagValue, tagValue) //string = min:18|max:50
+		// Splitting up the tag by values.
+		tagParts := parseValidateTag(tagValue)
 
-		parseValidateTag(tagValue)
-		//res, err := parseValidateTag(tagValue)
-		//if err != nil {
-		//
-		//}
+		// Selecting an appropriate validator.
+		for _, tagPart := range tagParts {
+			validatorName, validatorValue := tagPart[1], tagPart[2]
+			switch validatorName {
+			case ValidatorLen:
+				ValidateLen(field.Name, value.Field(i), validatorValue)
+			case ValidatorRegexp:
+				ValidateRegexp(field.Name, value.Field(i), validatorValue)
+			case ValidatorIn:
+				ValidateIn(field.Name, value.Field(i), validatorValue)
+			case ValidatorMin:
+				ValidateMin(field.Name, value.Field(i), validatorValue)
+			case ValidatorMax:
+				ValidateMax(field.Name, value.Field(i), validatorValue)
+			default:
+				err := fmt.Errorf("%w: %s validator is not implemented", ErrNotImplementedValidator, validatorName)
+				validationErrors = append(validationErrors, ValidationError{Field: field.Name, Err: err})
+			}
+		}
 	}
 
-	//fmt.Println(value)
-	//fmt.Println(value.Type())
-	//fmt.Println(value.Kind())
-	//fmt.Println(value.Kind() == reflect.Ptr)
-	fmt.Println("====================================================")
-
-	return nil
-}
-
-type UserRole string
-
-type User struct {
-	ID     string `json:"id" validate:"len:36"`
-	Name   string
-	Age    int      `validate:"min:18|max:50"`
-	Email  string   `validate:"regexp:^\\w+@\\w+\\.\\w+$"`
-	Role   UserRole `validate:"in:admin,stuff"`
-	Phones []string `validate:"len:11"`
-	meta   json.RawMessage
-}
-
-func main() {
-
-	user := User{
-		ID:     "123456789012345678901234567890123456",
-		Name:   "Username",
-		Age:    20,
-		Email:  "qwe@asd.ru",
-		Role:   "admin",
-		Phones: []string{"12345678901", "12345678901"},
-		meta:   []byte("qwerty"),
-	}
-
-	err := Validate(user)
-	if err != nil {
-		fmt.Println(err)
-	}
-
-	err = Validate(&user)
-
-	if err != nil {
-		fmt.Println(err)
-	}
-
-	err = Validate(nil)
-
-	if err != nil {
-		fmt.Println(err)
-	}
+	return validationErrors
 }

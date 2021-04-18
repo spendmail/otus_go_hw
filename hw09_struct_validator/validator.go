@@ -32,11 +32,11 @@ func (v ValidationErrors) Error() string {
 }
 
 var (
+	validationErrors           ValidationErrors
 	ErrNotAStruct              = errors.New("given type is not a struct")
 	ErrWrongFieldType          = errors.New("wrong field type")
 	ErrWrongValidatorValue     = errors.New("wrong validator value")
 	ErrNotImplementedValidator = errors.New("validator is not implemented")
-	validationErrors           ValidationErrors
 	tagParsingRegexp           = regexp.MustCompile(`\s*([\w]+)\s*:\s*([^|]+)\s*`)
 )
 

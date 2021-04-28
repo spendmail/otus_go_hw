@@ -3,6 +3,7 @@ package main
 import (
 	"errors"
 	"flag"
+	"fmt"
 	"log"
 	"net"
 	"os"
@@ -11,7 +12,10 @@ import (
 	"time"
 )
 
-var ErrParamsParsing = errors.New("unable to parse input arguments, watch the example:\n./go-telnet --timeout=10s 127.0.0.1 8000")
+var (
+	ErrParamsParsing = errors.New("unable to parse input arguments, watch the example:\n./go-telnet --timeout=10s 127.0.0.1 8000")
+	MsgShutdown      = "Bye"
+)
 
 // Parses input params, returns parsing error, if exists.
 func parseParams() (string, time.Duration, error) {
@@ -48,6 +52,10 @@ func main() {
 		log.Fatalln(err)
 	}
 
+	defer func() {
+		_ = client.Close()
+	}()
+
 	doneChannel := make(chan interface{})
 	signalsChannel := make(chan os.Signal, 1)
 
@@ -77,4 +85,6 @@ func main() {
 	}()
 
 	<-doneChannel
+
+	fmt.Println(MsgShutdown)
 }

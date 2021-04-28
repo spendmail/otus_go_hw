@@ -71,7 +71,7 @@ func (c *TelnetClientStruct) Receive() error {
 				return err
 			}
 		} else {
-			return scanner.Err()
+			return nil
 		}
 	}
 }

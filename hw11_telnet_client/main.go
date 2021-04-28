@@ -3,7 +3,6 @@ package main
 import (
 	"errors"
 	"flag"
-	"fmt"
 	"log"
 	"net"
 	"os"
@@ -86,5 +85,5 @@ func main() {
 
 	<-doneChannel
 
-	fmt.Println(MsgShutdown)
+	_, _ = os.Stderr.Write([]byte(MsgShutdown))
 }

@@ -62,9 +62,4 @@ func TestTelnetClient(t *testing.T) {
 
 		wg.Wait()
 	})
-
-	t.Run("parsing error", func(t *testing.T) {
-		_, _, err := parseParams()
-		require.ErrorIs(t, err, ErrParamsParsing, "Error must be: %q, actual: %q", ErrParamsParsing, err)
-	})
 }

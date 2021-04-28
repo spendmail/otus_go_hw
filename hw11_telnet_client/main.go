@@ -3,39 +3,78 @@ package main
 import (
 	"errors"
 	"flag"
-	"fmt"
+	"log"
+	"net"
 	"os"
+	"os/signal"
+	"syscall"
+	"time"
 )
 
-var (
-	ErrParamsParsing = errors.New("unable to parse input arguments, watch the example:\n./go-telnet --timeout=10s 127.0.0.1 8000")
-	timeout          string
-	host             string
-	port             string
-)
+var ErrParamsParsing = errors.New("unable to parse input arguments, watch the example:\n./go-telnet --timeout=10s 127.0.0.1 8000")
 
-func parseParams() error {
-	flag.StringVar(&timeout, "timeout", "5s", "connection timeout")
+// Parses input params, returns parsing error, if exists.
+func parseParams() (string, time.Duration, error) {
+	var timeoutRaw string
+	flag.StringVar(&timeoutRaw, "timeout", "5s", "connection timeout")
 	flag.Parse()
 
-	args := flag.Args()
+	arguments := flag.Args()
 
-	if len(args) != 2 {
-		return ErrParamsParsing
+	if len(arguments) != 2 {
+		return "", 0, ErrParamsParsing
 	}
 
-	host = args[0]
-	port = args[1]
+	address := net.JoinHostPort(arguments[0], arguments[1])
 
-	return nil
+	timeout, err := time.ParseDuration(timeoutRaw)
+	if err != nil {
+		return "", 0, ErrParamsParsing
+	}
+
+	return address, timeout, nil
 }
 
 func main() {
-	err := parseParams()
+	address, timeout, err := parseParams()
 	if err != nil {
-		fmt.Println(err)
-		os.Exit(1)
+		log.Fatalln(err)
 	}
 
-	fmt.Println(timeout, host, port)
+	client := NewTelnetClient(address, timeout, os.Stdin, os.Stdout)
+
+	err = client.Connect()
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	doneChannel := make(chan interface{})
+	signalsChannel := make(chan os.Signal, 1)
+
+	signal.Notify(signalsChannel, syscall.SIGINT)
+
+	go func() {
+		<-signalsChannel
+		close(doneChannel)
+	}()
+
+	go func() {
+		err = client.Send()
+		if err != nil {
+			log.Println(err)
+		}
+
+		// If EOF has been sent.
+		close(doneChannel)
+	}()
+
+	go func() {
+		err = client.Receive()
+		if err != nil {
+			log.Println(err)
+		}
+		<-doneChannel
+	}()
+
+	<-doneChannel
 }

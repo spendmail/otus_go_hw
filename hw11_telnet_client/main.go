@@ -39,18 +39,22 @@ func parseParams() (string, time.Duration, error) {
 }
 
 func main() {
+	// Parsing input params.
 	address, timeout, err := parseParams()
 	if err != nil {
 		log.Fatalln(err)
 	}
 
+	// TelnetClient constructor.
 	client := NewTelnetClient(address, timeout, os.Stdin, os.Stdout)
 
+	// Connecting to server.
 	err = client.Connect()
 	if err != nil {
 		log.Fatalln(err)
 	}
 
+	// Closing connection after all.
 	defer func() {
 		_ = client.Close()
 	}()
@@ -60,11 +64,13 @@ func main() {
 
 	signal.Notify(signalsChannel, syscall.SIGINT)
 
+	// Listening for SIGINT signal.
 	go func() {
 		<-signalsChannel
 		close(doneChannel)
 	}()
 
+	// Writing to socket.
 	go func() {
 		err = client.Send()
 		if err != nil {
@@ -75,6 +81,7 @@ func main() {
 		close(doneChannel)
 	}()
 
+	// Reading from socket.
 	go func() {
 		err = client.Receive()
 		if err != nil {
@@ -85,5 +92,6 @@ func main() {
 
 	<-doneChannel
 
+	// Final message.
 	_, _ = os.Stderr.Write([]byte(MsgShutdown))
 }

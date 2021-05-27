@@ -18,8 +18,8 @@ var (
 
 // Parses input params, returns parsing error, if exists.
 func parseParams() (string, time.Duration, error) {
-	var timeoutRaw string
-	flag.StringVar(&timeoutRaw, "timeout", "5s", "connection timeout")
+	var timeout time.Duration
+	flag.DurationVar(&timeout, "timeout", 5*time.Second, "connection timeout")
 	flag.Parse()
 
 	arguments := flag.Args()
@@ -29,11 +29,6 @@ func parseParams() (string, time.Duration, error) {
 	}
 
 	address := net.JoinHostPort(arguments[0], arguments[1])
-
-	timeout, err := time.ParseDuration(timeoutRaw)
-	if err != nil {
-		return "", 0, ErrParamsParsing
-	}
 
 	return address, timeout, nil
 }

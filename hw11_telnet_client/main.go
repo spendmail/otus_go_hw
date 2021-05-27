@@ -62,7 +62,7 @@ func main() {
 	// Listening for SIGINT signal.
 	go func() {
 		<-signalsChannel
-		close(doneChannel)
+		doneChannel <- nil
 	}()
 
 	// Writing to socket.
@@ -73,7 +73,7 @@ func main() {
 		}
 
 		// If EOF has been sent.
-		close(doneChannel)
+		doneChannel <- nil
 	}()
 
 	// Reading from socket.
@@ -86,6 +86,7 @@ func main() {
 	}()
 
 	<-doneChannel
+	close(doneChannel)
 
 	// Final message.
 	_, _ = os.Stderr.Write([]byte(MsgShutdown))

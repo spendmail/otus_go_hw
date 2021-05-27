@@ -2,12 +2,15 @@ package main
 
 import (
 	"bufio"
+	"errors"
 	"io"
 	"net"
 	"time"
 )
 
 const protocol = "tcp"
+
+var ErrConnectionClosed = errors.New("closed by remote peer")
 
 type TelnetClient interface {
 	Connect() error
@@ -52,7 +55,8 @@ func (c *TelnetClientStruct) Send() error {
 			bytes := append(scanner.Bytes(), byte('\n'))
 			_, err := c.conn.Write(bytes)
 			if err != nil {
-				return err
+				// In case of error during writing consider that server has closed the connection.
+				return ErrConnectionClosed
 			}
 		} else {
 			return scanner.Err()

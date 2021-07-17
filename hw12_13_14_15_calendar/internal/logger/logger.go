@@ -7,6 +7,13 @@ import (
 	"time"
 )
 
+const (
+	DEBUG = "debug"
+	INFO  = "info"
+	WARN  = "warn"
+	ERROR = "error"
+)
+
 type Logger struct {
 	File    string
 	Level   string
@@ -21,13 +28,13 @@ func New(file, level string, size, backups, age int) *Logger {
 	var zapCoreLevel zapcore.Level
 
 	switch level {
-	case "debug":
+	case DEBUG:
 		zapCoreLevel = zap.DebugLevel
-	case "info":
+	case INFO:
 		zapCoreLevel = zap.InfoLevel
-	case "warn":
+	case WARN:
 		zapCoreLevel = zap.WarnLevel
-	case "error":
+	case ERROR:
 		zapCoreLevel = zap.ErrorLevel
 	default:
 		zapCoreLevel = zap.InfoLevel

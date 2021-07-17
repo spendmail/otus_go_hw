@@ -1,5 +1,15 @@
 [logger]
-level = "INFO"
+#    available levels: debug, info, warn, error
+    level = "debug"
+    file = "/tmp/prod.log"
+    size = 500
+    backups = 3
+    age = 30
 
-# TODO
-# ...
+[database]
+method = "sql"
+url = "pgsql://user:pass@localhost:5432/database"
+
+[http]
+host = "127.0.0.1"
+port = 5555

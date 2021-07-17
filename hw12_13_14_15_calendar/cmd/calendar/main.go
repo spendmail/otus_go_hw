@@ -29,7 +29,14 @@ func main() {
 	}
 
 	config := NewConfig()
-	logg := logger.New(config.Logger.Level)
+
+	logg := logger.New(
+		config.Logger.File,
+		config.Logger.Level,
+		config.Logger.Size,
+		config.Logger.Backups,
+		config.Logger.Age,
+	)
 
 	storage := memorystorage.New()
 	calendar := app.New(logg, storage)

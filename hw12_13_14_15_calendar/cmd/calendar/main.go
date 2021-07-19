@@ -9,15 +9,16 @@ import (
 	"time"
 
 	"github.com/spendmail/otus_go_hw/hw12_13_14_15_calendar/internal/app"
-	"github.com/spendmail/otus_go_hw/hw12_13_14_15_calendar/internal/logger"
+	internalconfig "github.com/spendmail/otus_go_hw/hw12_13_14_15_calendar/internal/config"
+	internallogger "github.com/spendmail/otus_go_hw/hw12_13_14_15_calendar/internal/logger"
 	internalhttp "github.com/spendmail/otus_go_hw/hw12_13_14_15_calendar/internal/server/http"
 	memorystorage "github.com/spendmail/otus_go_hw/hw12_13_14_15_calendar/internal/storage/memory"
 )
 
-var configFile string
+var configPath string
 
 func init() {
-	flag.StringVar(&configFile, "config", "/etc/calendar/config.toml", "Path to configuration file")
+	flag.StringVar(&configPath, "config", "/etc/calendar/config.toml", "Path to configuration file")
 }
 
 func main() {
@@ -28,20 +29,12 @@ func main() {
 		return
 	}
 
-	config := NewConfig()
-
-	logg := logger.New(
-		config.Logger.File,
-		config.Logger.Level,
-		config.Logger.Size,
-		config.Logger.Backups,
-		config.Logger.Age,
-	)
-
+	config := internalconfig.NewConfig(configPath)
+	logger := internallogger.New(config.Logger)
 	storage := memorystorage.New()
-	calendar := app.New(logg, storage)
+	calendar := app.New(logger, storage)
+	server := internalhttp.NewServer(config.Http, calendar, logger)
 
-	server := internalhttp.NewServer(calendar)
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
@@ -62,14 +55,14 @@ func main() {
 		defer cancel()
 
 		if err := server.Stop(ctx); err != nil {
-			logg.Error("failed to stop http server: " + err.Error())
+			logger.Error("failed to stop http server: " + err.Error())
 		}
 	}()
 
-	logg.Info("calendar is running...")
+	logger.Info("calendar is running...")
 
 	if err := server.Start(ctx); err != nil {
-		logg.Error("failed to start http server: " + err.Error())
+		logger.Error("failed to start http server: " + err.Error())
 		cancel()
 		os.Exit(1) //nolint:gocritic
 	}

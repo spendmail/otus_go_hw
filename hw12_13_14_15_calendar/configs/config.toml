@@ -12,4 +12,4 @@ url = "pgsql://user:pass@localhost:5432/database"
 
 [http]
 host = "127.0.0.1"
-port = 5555
+port = 8080

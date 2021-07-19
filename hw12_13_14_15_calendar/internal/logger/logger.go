@@ -1,10 +1,13 @@
 package logger
 
 import (
+	"time"
+
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 	"gopkg.in/natefinch/lumberjack.v2"
-	"time"
+
+	internalconfig "github.com/spendmail/otus_go_hw/hw12_13_14_15_calendar/internal/config"
 )
 
 const (
@@ -15,19 +18,13 @@ const (
 )
 
 type Logger struct {
-	File    string
-	Level   string
-	Size    int
-	Backups int
-	Age     int
-	Logger  *zap.Logger
+	Logger *zap.Logger
 }
 
-func New(file, level string, size, backups, age int) *Logger {
-
+func New(config internalconfig.LoggerConf) *Logger {
 	var zapCoreLevel zapcore.Level
 
-	switch level {
+	switch config.Level {
 	case DEBUG:
 		zapCoreLevel = zap.DebugLevel
 	case INFO:
@@ -45,22 +42,17 @@ func New(file, level string, size, backups, age int) *Logger {
 	core := zapcore.NewCore(
 		zapcore.NewConsoleEncoder(encoderConfig),
 		zapcore.AddSync(&lumberjack.Logger{
-			Filename:   file,
-			MaxSize:    size,
-			MaxBackups: backups,
-			MaxAge:     age,
+			Filename:   config.File,
+			MaxSize:    config.Size,
+			MaxBackups: config.Backups,
+			MaxAge:     config.Age,
 		}),
 		zapCoreLevel,
 	)
 	logger := zap.New(core)
 
 	return &Logger{
-		File:    file,
-		Level:   level,
-		Size:    size,
-		Backups: backups,
-		Age:     age,
-		Logger:  logger,
+		Logger: logger,
 	}
 }
 

@@ -1,25 +1,27 @@
 package internalhttp
 
 import (
-	"fmt"
 	"net/http"
 	"time"
+
+	internallogger "github.com/spendmail/otus_go_hw/hw12_13_14_15_calendar/internal/logger"
 )
 
-func loggingMiddleware(next http.HandlerFunc, logger Logger) http.HandlerFunc {
+func loggingMiddleware(next http.HandlerFunc, logger internallogger.Interface) http.HandlerFunc {
 	return func(writer http.ResponseWriter, request *http.Request) {
 		start := time.Now()
 
 		next(writer, request)
 
-		logger.Info(fmt.Sprintf("%s\t%s\t%s\t%s\t%s\t%d\t%s\t%s", request.RemoteAddr,
-			time.Now().Format("02/Jan/2006:15:04:05 -0700"),
-			request.Method,
-			request.URL.Path,
-			request.Proto,
-			200,
-			time.Since(start),
-			request.UserAgent(),
-		))
+		logger.Info(
+			"access",
+			"addr", request.RemoteAddr,
+			"method", request.Method,
+			"path", request.URL.Path,
+			"proto", request.Proto,
+			"code", 200,
+			"latency", time.Since(start),
+			"agent", request.UserAgent(),
+		)
 	}
 }

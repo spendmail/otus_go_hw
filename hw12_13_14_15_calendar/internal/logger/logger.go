@@ -21,6 +21,13 @@ type Logger struct {
 	Logger *zap.Logger
 }
 
+type Interface interface {
+	Debug(msg string, args ...interface{})
+	Info(msg string, args ...interface{})
+	Warn(msg string, args ...interface{})
+	Error(msg string, args ...interface{})
+}
+
 func New(config internalconfig.LoggerConf) *Logger {
 	var zapCoreLevel zapcore.Level
 
@@ -60,18 +67,18 @@ func TimeEncoder(t time.Time, enc zapcore.PrimitiveArrayEncoder) {
 	enc.AppendString(t.Format("2006-01-02 15:04:05"))
 }
 
-func (l *Logger) Debug(msg string) {
-	l.Logger.Debug(msg)
+func (l *Logger) Debug(msg string, args ...interface{}) {
+	l.Logger.Sugar().Debugw(msg, args...)
 }
 
-func (l *Logger) Info(msg string) {
-	l.Logger.Info(msg)
+func (l *Logger) Info(msg string, args ...interface{}) {
+	l.Logger.Sugar().Infow(msg, args...)
 }
 
-func (l *Logger) Warn(msg string) {
-	l.Logger.Warn(msg)
+func (l *Logger) Warn(msg string, args ...interface{}) {
+	l.Logger.Sugar().Warnw(msg, args...)
 }
 
-func (l *Logger) Error(msg string) {
-	l.Logger.Error(msg)
+func (l *Logger) Error(msg string, args ...interface{}) {
+	l.Logger.Sugar().Errorw(msg, args...)
 }

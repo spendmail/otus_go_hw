@@ -30,10 +30,10 @@ func main() {
 	}
 
 	config := internalconfig.NewConfig(configPath)
-	logger := internallogger.New(config.Logger)
+	logger := internallogger.New(config)
 	storage := memorystorage.New()
 	calendar := app.New(logger, storage)
-	server := internalhttp.NewServer(config.Http, calendar, logger)
+	server := internalhttp.NewServer(config, calendar, logger)
 
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()

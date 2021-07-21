@@ -6,8 +6,6 @@ import (
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 	"gopkg.in/natefinch/lumberjack.v2"
-
-	internalconfig "github.com/spendmail/otus_go_hw/hw12_13_14_15_calendar/internal/config"
 )
 
 const (
@@ -17,14 +15,22 @@ const (
 	ERROR = "error"
 )
 
+type Config interface {
+	GetLoggerLevel() string
+	GetLoggerFile() string
+	GetLoggerSize() int
+	GetLoggerBackups() int
+	GetLoggerAge() int
+}
+
 type Logger struct {
 	Logger *zap.Logger
 }
 
-func New(config internalconfig.LoggerConf) *Logger {
+func New(config Config) *Logger {
 	var zapCoreLevel zapcore.Level
 
-	switch config.Level {
+	switch config.GetLoggerLevel() {
 	case DEBUG:
 		zapCoreLevel = zap.DebugLevel
 	case INFO:
@@ -42,10 +48,10 @@ func New(config internalconfig.LoggerConf) *Logger {
 	core := zapcore.NewCore(
 		zapcore.NewConsoleEncoder(encoderConfig),
 		zapcore.AddSync(&lumberjack.Logger{
-			Filename:   config.File,
-			MaxSize:    config.Size,
-			MaxBackups: config.Backups,
-			MaxAge:     config.Age,
+			Filename:   config.GetLoggerFile(),
+			MaxSize:    config.GetLoggerSize(),
+			MaxBackups: config.GetLoggerBackups(),
+			MaxAge:     config.GetLoggerAge(),
 		}),
 		zapCoreLevel,
 	)

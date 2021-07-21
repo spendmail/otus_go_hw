@@ -24,14 +24,14 @@ type HttpConf struct {
 	Port string
 }
 
-func NewConfig(path string) Config {
+func NewConfig(path string) *Config {
 	viper.SetConfigFile(path)
 
 	if err := viper.ReadInConfig(); err != nil {
 		panic(fmt.Sprintf("Unable to read config file %s \n", path))
 	}
 
-	return Config{
+	return &Config{
 		LoggerConf{
 			viper.GetString("logger.level"),
 			viper.GetString("logger.file"),
@@ -44,4 +44,32 @@ func NewConfig(path string) Config {
 			viper.GetString("http.port"),
 		},
 	}
+}
+
+func (c *Config) GetLoggerLevel() string {
+	return c.Logger.Level
+}
+
+func (c *Config) GetLoggerFile() string {
+	return c.Logger.File
+}
+
+func (c *Config) GetLoggerSize() int {
+	return c.Logger.Size
+}
+
+func (c *Config) GetLoggerBackups() int {
+	return c.Logger.Backups
+}
+
+func (c *Config) GetLoggerAge() int {
+	return c.Logger.Age
+}
+
+func (c *Config) GetServerHost() string {
+	return c.Http.Host
+}
+
+func (c *Config) GetServerPort() string {
+	return c.Http.Port
 }

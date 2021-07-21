@@ -3,11 +3,9 @@ package internalhttp
 import (
 	"net/http"
 	"time"
-
-	internallogger "github.com/spendmail/otus_go_hw/hw12_13_14_15_calendar/internal/logger"
 )
 
-func loggingMiddleware(next http.HandlerFunc, logger internallogger.Interface) http.HandlerFunc {
+func loggingMiddleware(next http.HandlerFunc, logger Logger) http.HandlerFunc {
 	return func(writer http.ResponseWriter, request *http.Request) {
 		start := time.Now()
 

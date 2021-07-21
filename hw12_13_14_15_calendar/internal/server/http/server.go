@@ -6,12 +6,18 @@ import (
 	"net/http"
 
 	internalconfig "github.com/spendmail/otus_go_hw/hw12_13_14_15_calendar/internal/config"
-	internallogger "github.com/spendmail/otus_go_hw/hw12_13_14_15_calendar/internal/logger"
 )
+
+type Logger interface {
+	Debug(msg string, args ...interface{})
+	Info(msg string, args ...interface{})
+	Warn(msg string, args ...interface{})
+	Error(msg string, args ...interface{})
+}
 
 type Server struct {
 	server *http.Server
-	logger internallogger.Interface
+	logger Logger
 }
 
 type Application interface{}
@@ -24,7 +30,7 @@ func (h *RequestHandler) Hello(writer http.ResponseWriter, request *http.Request
 	writer.Write([]byte("Hello, World!"))
 }
 
-func NewServer(config internalconfig.HttpConf, app Application, logger internallogger.Interface) *Server {
+func NewServer(config internalconfig.HttpConf, app Application, logger Logger) *Server {
 	handler := &RequestHandler{}
 	mux := http.NewServeMux()
 	mux.HandleFunc("/", loggingMiddleware(handler.Hello, logger))

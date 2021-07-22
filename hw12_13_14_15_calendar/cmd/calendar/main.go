@@ -42,6 +42,7 @@ func main() {
 		signals := make(chan os.Signal, 1)
 		signal.Notify(signals, syscall.SIGINT, syscall.SIGHUP)
 
+		// Locking until OS signal is sent or context cancel func is called.
 		select {
 		case <-ctx.Done():
 			return
@@ -61,6 +62,7 @@ func main() {
 
 	logger.Info("calendar is running...")
 
+	// Locking till server is listening the socket.
 	if err := server.Start(ctx); err != nil {
 		logger.Error("failed to start http server: " + err.Error())
 		cancel()

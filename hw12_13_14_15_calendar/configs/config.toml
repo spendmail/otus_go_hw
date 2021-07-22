@@ -6,9 +6,9 @@
     backups = 3
     age = 30
 
-[database]
-method = "sql"
-url = "pgsql://user:pass@localhost:5432/database"
+[storage]
+implementation = "sql"
+dsn = "pgsql://calendar:calendar@localhost:5432/calendar?sslmode=disable"
 
 [http]
 host = "127.0.0.1"

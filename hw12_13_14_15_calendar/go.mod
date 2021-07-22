@@ -3,6 +3,7 @@ module github.com/spendmail/otus_go_hw/hw12_13_14_15_calendar
 go 1.16
 
 require (
+	github.com/jmoiron/sqlx v1.3.4
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/spf13/viper v1.8.1
 	go.uber.org/zap v1.17.0

@@ -7,8 +7,9 @@ import (
 )
 
 type Config struct {
-	Logger LoggerConf
-	Http   HttpConf
+	Logger  LoggerConf
+	Http    HttpConf
+	Storage StorageConf
 }
 
 type LoggerConf struct {
@@ -22,6 +23,11 @@ type LoggerConf struct {
 type HttpConf struct {
 	Host string
 	Port string
+}
+
+type StorageConf struct {
+	Implementation string
+	DSN            string
 }
 
 func NewConfig(path string) *Config {
@@ -42,6 +48,10 @@ func NewConfig(path string) *Config {
 		HttpConf{
 			viper.GetString("http.host"),
 			viper.GetString("http.port"),
+		},
+		StorageConf{
+			viper.GetString("storage.implementation"),
+			viper.GetString("storage.dsn"),
 		},
 	}
 }
@@ -72,4 +82,12 @@ func (c *Config) GetServerHost() string {
 
 func (c *Config) GetServerPort() string {
 	return c.Http.Port
+}
+
+func (c *Config) GetStorageImplementation() string {
+	return c.Storage.Implementation
+}
+
+func (c *Config) GetStorageDSN() string {
+	return c.Storage.DSN
 }

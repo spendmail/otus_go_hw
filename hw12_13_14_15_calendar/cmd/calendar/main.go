@@ -12,7 +12,7 @@ import (
 	internalconfig "github.com/spendmail/otus_go_hw/hw12_13_14_15_calendar/internal/config"
 	internallogger "github.com/spendmail/otus_go_hw/hw12_13_14_15_calendar/internal/logger"
 	internalhttp "github.com/spendmail/otus_go_hw/hw12_13_14_15_calendar/internal/server/http"
-	internalstorage "github.com/spendmail/otus_go_hw/hw12_13_14_15_calendar/internal/storage"
+	factorystorage "github.com/spendmail/otus_go_hw/hw12_13_14_15_calendar/internal/storage/factory"
 )
 
 var configPath string
@@ -31,7 +31,7 @@ func main() {
 
 	config := internalconfig.NewConfig(configPath)
 	logger := internallogger.New(config)
-	storage := internalstorage.GetStorage(config)
+	storage := factorystorage.GetStorage(config)
 	calendar := app.New(logger, storage)
 	server := internalhttp.NewServer(config, calendar, logger)
 

@@ -1,7 +1,7 @@
 package app
 
 import (
-	"time"
+	"context"
 
 	"github.com/spendmail/otus_go_hw/hw12_13_14_15_calendar/internal/storage"
 )
@@ -19,12 +19,12 @@ type Logger interface {
 }
 
 type Storage interface {
-	AddEvent(event storage.Event) error
-	UpdateEvent(event storage.Event) error
-	RemoveEvent(eventID string) error
-	DailyEvents(date time.Time) ([]storage.Event, error)
-	WeeklyEvents(date time.Time) ([]storage.Event, error)
-	MonthEvents(date time.Time) ([]storage.Event, error)
+	CreateEvent(ctx context.Context, event storage.Event) (storage.Event, error)
+	UpdateEvent(ctx context.Context, event storage.Event) (storage.Event, error)
+	RemoveEvent(ctx context.Context, event storage.Event) error
+	GetDayAheadEvents(ctx context.Context) ([]storage.Event, error)
+	GetWeekAheadEvents(ctx context.Context) ([]storage.Event, error)
+	GetMonthAheadEvents(ctx context.Context) ([]storage.Event, error)
 }
 
 func New(logger Logger, storage Storage) *App {
@@ -34,43 +34,32 @@ func New(logger Logger, storage Storage) *App {
 	}
 }
 
-//func (a *App) CreateEvent(ctx context.Context, id, title string) error {
-//	// TODO
-//	return nil
-//	// return a.storage.CreateEvent(storage.Event{ID: id, Title: title})
-//}
+func (a *App) CreateEvent(ctx context.Context, event storage.Event) (storage.Event, error) {
+	event, err := a.Storage.CreateEvent(ctx, event)
+	return event, err
+}
 
-// TODO
+func (a *App) UpdateEvent(ctx context.Context, event storage.Event) (storage.Event, error) {
+	event, err := a.Storage.UpdateEvent(ctx, event)
+	return event, err
+}
 
-//func (a *App) CreateEvent(title string, date int64) error {
-//	id, err := uuid.NewRandom()
-//	if err != nil {
-//		return fmt.Errorf("can not create unique id, %w", err)
-//	}
-//
-//	event := storage.Event{ID: id.String(), Title: title, Date: date, OwnerID: ownerID}
-//
-//	return a.storage.AddEvent(event)
-//}
-//
-//func (a *App) UpdateEvent(id, title string, date int64, description string, durationUntil int64, ownerID string, noticeBefore int64) error {
-//	event := storage.Event{ID: id, Title: title, Date: date, DurationUntil: durationUntil, Description: description, OwnerID: ownerID, NoticeBefore: noticeBefore}
-//
-//	return a.storage.UpdateEvent(event)
-//}
-//
-//func (a *App) RemoveEvent(id string) error {
-//	return a.storage.RemoveEvent(id)
-//}
-//
-//func (a *App) DailyEvents(date time.Time) ([]storage.Event, error) {
-//	return a.storage.DailyEvents(date)
-//}
-//
-//func (a *App) WeeklyEvents(date time.Time) ([]storage.Event, error) {
-//	return a.storage.WeeklyEvents(date)
-//}
-//
-//func (a *App) MonthEvents(date time.Time) ([]storage.Event, error) {
-//	return a.storage.MonthEvents(date)
-//}
+func (a *App) RemoveEvent(ctx context.Context, event storage.Event) error {
+	err := a.Storage.RemoveEvent(ctx, event)
+	return err
+}
+
+func (a *App) GetDayAheadEvents(ctx context.Context) ([]storage.Event, error) {
+	events, err := a.Storage.GetDayAheadEvents(ctx)
+	return events, err
+}
+
+func (a *App) GetWeekAheadEvents(ctx context.Context) ([]storage.Event, error) {
+	events, err := a.Storage.GetWeekAheadEvents(ctx)
+	return events, err
+}
+
+func (a *App) GetMonthAheadEvents(ctx context.Context) ([]storage.Event, error) {
+	events, err := a.Storage.GetMonthAheadEvents(ctx)
+	return events, err
+}

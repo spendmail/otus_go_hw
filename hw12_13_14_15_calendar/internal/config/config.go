@@ -1,8 +1,7 @@
 package config
 
 import (
-	"fmt"
-
+	"github.com/pkg/errors"
 	"github.com/spf13/viper"
 )
 
@@ -30,11 +29,13 @@ type StorageConf struct {
 	DSN            string
 }
 
-func NewConfig(path string) *Config {
+var ErrReadConfig = errors.New("unable to read the config")
+
+func NewConfig(path string) (*Config, error) {
 	viper.SetConfigFile(path)
 
 	if err := viper.ReadInConfig(); err != nil {
-		panic(fmt.Sprintf("Unable to read config file %s \n", path))
+		return nil, errors.Wrap(ErrReadConfig, path)
 	}
 
 	return &Config{
@@ -53,7 +54,7 @@ func NewConfig(path string) *Config {
 			viper.GetString("storage.implementation"),
 			viper.GetString("storage.dsn"),
 		},
-	}
+	}, nil
 }
 
 func (c *Config) GetLoggerLevel() string {

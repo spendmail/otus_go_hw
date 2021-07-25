@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"flag"
+	"log"
 	"os"
 	"os/signal"
 	"syscall"
@@ -29,14 +30,23 @@ func main() {
 		return
 	}
 
-	config := internalconfig.NewConfig(configPath)
-	logger := internallogger.New(config)
-	storage := factorystorage.GetStorage(config)
-	calendar := app.New(logger, storage)
-	server := internalhttp.NewServer(config, calendar, logger)
-
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
+
+	config, err := internalconfig.NewConfig(configPath)
+	if err != nil {
+		log.Fatal(nil)
+	}
+
+	logger := internallogger.New(config)
+
+	storage, err := factorystorage.GetStorage(ctx, config)
+	if err != nil {
+		logger.Error(err.Error())
+	}
+
+	calendar := app.New(logger, storage)
+	server := internalhttp.NewServer(config, calendar, logger)
 
 	go func() {
 		signals := make(chan os.Signal, 1)

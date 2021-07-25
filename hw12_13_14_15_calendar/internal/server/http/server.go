@@ -4,6 +4,8 @@ import (
 	"context"
 	"net"
 	"net/http"
+
+	"github.com/spendmail/otus_go_hw/hw12_13_14_15_calendar/internal/storage"
 )
 
 type Logger interface {
@@ -23,9 +25,18 @@ type Config interface {
 	GetServerPort() string
 }
 
-type Application interface{}
+type Application interface {
+	CreateEvent(ctx context.Context, event storage.Event) (storage.Event, error)
+	UpdateEvent(ctx context.Context, event storage.Event) (storage.Event, error)
+	RemoveEvent(ctx context.Context, event storage.Event) error
+	GetDayAheadEvents(ctx context.Context) ([]storage.Event, error)
+	GetWeekAheadEvents(ctx context.Context) ([]storage.Event, error)
+	GetMonthAheadEvents(ctx context.Context) ([]storage.Event, error)
+}
 
-type RequestHandler struct{}
+type RequestHandler struct {
+	App Application
+}
 
 func (h *RequestHandler) Hello(writer http.ResponseWriter, request *http.Request) {
 	writer.Header().Set("Content-Type", "text/html; charset=utf-8")
@@ -34,9 +45,13 @@ func (h *RequestHandler) Hello(writer http.ResponseWriter, request *http.Request
 }
 
 func NewServer(config Config, app Application, logger Logger) *Server {
-	handler := &RequestHandler{}
+	handler := &RequestHandler{
+		App: app,
+	}
+
 	mux := http.NewServeMux()
 	mux.HandleFunc("/", loggingMiddleware(handler.Hello, logger))
+
 	server := &http.Server{
 		Addr:    net.JoinHostPort(config.GetServerHost(), config.GetServerPort()),
 		Handler: mux,

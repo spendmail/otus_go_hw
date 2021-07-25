@@ -1,8 +1,8 @@
 package memorystorage
 
 import (
+	"context"
 	"sync"
-	"time"
 
 	"github.com/spendmail/otus_go_hw/hw12_13_14_15_calendar/internal/storage"
 )
@@ -18,26 +18,26 @@ func New() *Storage {
 	return &Storage{}
 }
 
-func (s *Storage) AddEvent(event storage.Event) error {
+func (s *Storage) CreateEvent(ctx context.Context, event storage.Event) (storage.Event, error) {
+	return storage.Event{}, nil
+}
+
+func (s *Storage) UpdateEvent(ctx context.Context, event storage.Event) (storage.Event, error) {
+	return storage.Event{}, nil
+}
+
+func (s *Storage) RemoveEvent(ctx context.Context, event storage.Event) error {
 	return nil
 }
 
-func (s *Storage) UpdateEvent(event storage.Event) error {
-	return nil
-}
-
-func (s *Storage) RemoveEvent(eventID string) error {
-	return nil
-}
-
-func (s *Storage) DailyEvents(date time.Time) ([]storage.Event, error) {
+func (s *Storage) GetDayAheadEvents(ctx context.Context) ([]storage.Event, error) {
 	return []storage.Event{}, nil
 }
 
-func (s *Storage) WeeklyEvents(date time.Time) ([]storage.Event, error) {
+func (s *Storage) GetWeekAheadEvents(ctx context.Context) ([]storage.Event, error) {
 	return []storage.Event{}, nil
 }
 
-func (s *Storage) MonthEvents(date time.Time) ([]storage.Event, error) {
+func (s *Storage) GetMonthAheadEvents(ctx context.Context) ([]storage.Event, error) {
 	return []storage.Event{}, nil
 }

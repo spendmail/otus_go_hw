@@ -1,38 +1,29 @@
 package factorystorage
 
 import (
-	"time"
+	"context"
 
-	"github.com/spendmail/otus_go_hw/hw12_13_14_15_calendar/internal/storage"
+	"github.com/spendmail/otus_go_hw/hw12_13_14_15_calendar/internal/app"
 	memorystorage "github.com/spendmail/otus_go_hw/hw12_13_14_15_calendar/internal/storage/memory"
 	sqlstorage "github.com/spendmail/otus_go_hw/hw12_13_14_15_calendar/internal/storage/sql"
 )
-
-type Storage interface {
-	AddEvent(event storage.Event) error
-	UpdateEvent(event storage.Event) error
-	RemoveEvent(eventID string) error
-	DailyEvents(date time.Time) ([]storage.Event, error)
-	WeeklyEvents(date time.Time) ([]storage.Event, error)
-	MonthEvents(date time.Time) ([]storage.Event, error)
-}
 
 type Config interface {
 	GetStorageImplementation() string
 	GetStorageDSN() string
 }
 
-func GetStorage(config Config) Storage {
-	var implementation Storage
-
+func GetStorage(ctx context.Context, config Config) (app.Storage, error) {
 	switch config.GetStorageImplementation() {
 	case sqlstorage.Alias:
-		implementation = sqlstorage.New(config)
-	case memorystorage.Alias:
-		implementation = memorystorage.New()
-	default:
-		implementation = memorystorage.New()
-	}
+		storage := sqlstorage.New(config)
+		err := storage.Connect(ctx)
 
-	return implementation
+		return storage, err
+
+	case memorystorage.Alias:
+		return memorystorage.New(), nil
+	default:
+		return memorystorage.New(), nil
+	}
 }

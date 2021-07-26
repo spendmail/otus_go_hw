@@ -2,14 +2,25 @@ package sqlstorage
 
 import (
 	"context"
-	"log"
+	"errors"
+	"fmt"
 
-	_ "github.com/jackc/pgx/stdlib"
 	"github.com/jmoiron/sqlx"
 	"github.com/spendmail/otus_go_hw/hw12_13_14_15_calendar/internal/storage"
 )
 
 const Alias = "sql"
+
+var (
+	ErrDatabaseConnect     = errors.New("unable to connect to database")
+	ErrDatabaseClose       = errors.New("unable to close database")
+	ErrCreateEvent         = errors.New("create event error")
+	ErrUpdateEvent         = errors.New("update event error")
+	ErrRemoveEvent         = errors.New("removing event error")
+	ErrGetDayAheadEvents   = errors.New("getting day events error")
+	ErrGetWeekAheadEvents  = errors.New("getting week events error")
+	ErrGetMonthAheadEvents = errors.New("getting month events error")
+)
 
 type Config interface {
 	GetStorageDSN() string
@@ -20,27 +31,36 @@ type Storage struct {
 	db     *sqlx.DB
 }
 
+// New returns a new sql storage instance.
 func New(config Config) *Storage {
 	return &Storage{
 		Config: config,
 	}
 }
 
+// Connect is trying to connect to database server.
 func (s *Storage) Connect(ctx context.Context) error {
 	db, err := sqlx.ConnectContext(ctx, "pgx", s.Config.GetStorageDSN())
 	if err != nil {
-		log.Fatalln(err)
+		err = fmt.Errorf("%w: %s", ErrDatabaseConnect, err.Error())
 	}
 
 	s.db = db
 
-	return nil
+	return err
 }
 
+// Close breaks the database connection.
 func (s *Storage) Close() error {
-	return s.db.Close()
+	err := s.db.Close()
+	if err != nil {
+		err = fmt.Errorf("%w: %s", ErrDatabaseClose, err.Error())
+	}
+
+	return err
 }
 
+// CreateEvent saves event into a sql storage.
 func (s *Storage) CreateEvent(ctx context.Context, event storage.Event) (storage.Event, error) {
 	query := `
 		INSERT INTO app_event (id, title, begin_date, end_date, description, owner_id) 
@@ -50,14 +70,18 @@ func (s *Storage) CreateEvent(ctx context.Context, event storage.Event) (storage
 
 	rows, err := s.db.NamedQueryContext(ctx, query, event)
 	if err != nil {
-		log.Fatalln(err)
+		err = fmt.Errorf("%w: %s", ErrCreateEvent, err.Error())
+		return event, err
 	}
+
+	defer rows.Close()
 
 	for rows.Next() {
 		results := make(map[string]interface{})
 		err := rows.MapScan(results)
 		if err != nil {
-			log.Fatal(err)
+			err = fmt.Errorf("%w: %s", ErrCreateEvent, err.Error())
+			return event, err
 		}
 
 		event.ID = results["id"].(int64)
@@ -66,6 +90,7 @@ func (s *Storage) CreateEvent(ctx context.Context, event storage.Event) (storage
 	return event, nil
 }
 
+// UpdateEvent updates event in sql storage if exists.
 func (s *Storage) UpdateEvent(ctx context.Context, event storage.Event) (storage.Event, error) {
 	query := `
 		UPDATE app_event 
@@ -79,37 +104,45 @@ func (s *Storage) UpdateEvent(ctx context.Context, event storage.Event) (storage
 
 	_, err := s.db.NamedExecContext(ctx, query, event)
 	if err != nil {
-		log.Fatalln(err)
+		err = fmt.Errorf("%w: %s", ErrUpdateEvent, err.Error())
+		return event, err
 	}
 
 	return event, nil
 }
 
+// RemoveEvent removes event from sql storage if exists.
 func (s *Storage) RemoveEvent(ctx context.Context, event storage.Event) error {
 	query := "DELETE FROM app_event WHERE id = :id"
 	_, err := s.db.NamedExecContext(ctx, query, event)
 	if err != nil {
-		log.Fatalln(err)
+		err = fmt.Errorf("%w: %s", ErrRemoveEvent, err.Error())
+		return err
 	}
 
 	return nil
 }
 
+// GetDayAheadEvents returns a day events slice.
 func (s *Storage) GetDayAheadEvents(ctx context.Context) ([]storage.Event, error) {
 	var events []storage.Event
 
 	query := "SELECT * FROM app_event WHERE begin_date > NOW() AND begin_date < NOW() + interval '1 day'"
 	rows, err := s.db.NamedQueryContext(ctx, query, storage.Event{})
 	if err != nil {
-		log.Fatalln(err)
+		err = fmt.Errorf("%w: %s", ErrGetDayAheadEvents, err.Error())
+		return []storage.Event{}, err
 	}
+
+	defer rows.Close()
 
 	for rows.Next() {
 		var event storage.Event
 
 		err := rows.StructScan(&event)
 		if err != nil {
-			log.Fatal(err)
+			err = fmt.Errorf("%w: %s", ErrGetDayAheadEvents, err.Error())
+			return []storage.Event{}, err
 		}
 
 		events = append(events, event)
@@ -118,21 +151,26 @@ func (s *Storage) GetDayAheadEvents(ctx context.Context) ([]storage.Event, error
 	return events, nil
 }
 
+// GetWeekAheadEvents returns a week events slice.
 func (s *Storage) GetWeekAheadEvents(ctx context.Context) ([]storage.Event, error) {
 	var events []storage.Event
 
 	query := "SELECT * FROM app_event WHERE begin_date > NOW() AND begin_date < NOW() + interval '1 week'"
 	rows, err := s.db.NamedQueryContext(ctx, query, storage.Event{})
 	if err != nil {
-		log.Fatalln(err)
+		err = fmt.Errorf("%w: %s", ErrGetWeekAheadEvents, err.Error())
+		return []storage.Event{}, err
 	}
+
+	defer rows.Close()
 
 	for rows.Next() {
 		var event storage.Event
 
 		err := rows.StructScan(&event)
 		if err != nil {
-			log.Fatal(err)
+			err = fmt.Errorf("%w: %s", ErrGetWeekAheadEvents, err.Error())
+			return []storage.Event{}, err
 		}
 
 		events = append(events, event)
@@ -141,21 +179,26 @@ func (s *Storage) GetWeekAheadEvents(ctx context.Context) ([]storage.Event, erro
 	return events, nil
 }
 
+// GetMonthAheadEvents returns a month events slice.
 func (s *Storage) GetMonthAheadEvents(ctx context.Context) ([]storage.Event, error) {
 	var events []storage.Event
 
 	query := "SELECT * FROM app_event WHERE begin_date > NOW() AND begin_date < NOW() + interval '1 month'"
 	rows, err := s.db.NamedQueryContext(ctx, query, storage.Event{})
 	if err != nil {
-		log.Fatalln(err)
+		err = fmt.Errorf("%w: %s", ErrGetMonthAheadEvents, err.Error())
+		return []storage.Event{}, err
 	}
+
+	defer rows.Close()
 
 	for rows.Next() {
 		var event storage.Event
 
 		err := rows.StructScan(&event)
 		if err != nil {
-			log.Fatal(err)
+			err = fmt.Errorf("%w: %s", ErrGetMonthAheadEvents, err.Error())
+			return []storage.Event{}, err
 		}
 
 		events = append(events, event)

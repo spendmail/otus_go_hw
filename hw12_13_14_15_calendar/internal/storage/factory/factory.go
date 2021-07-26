@@ -13,12 +13,12 @@ type Config interface {
 	GetStorageDSN() string
 }
 
+// GetStorage is a storage factory method.
 func GetStorage(ctx context.Context, config Config) (app.Storage, error) {
 	switch config.GetStorageImplementation() {
 	case sqlstorage.Alias:
 		storage := sqlstorage.New(config)
 		err := storage.Connect(ctx)
-
 		return storage, err
 
 	case memorystorage.Alias:

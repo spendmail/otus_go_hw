@@ -5,6 +5,7 @@ import (
 	"time"
 )
 
+// Wraps request handler, adding request access log.
 func loggingMiddleware(next http.HandlerFunc, logger Logger) http.HandlerFunc {
 	return func(writer http.ResponseWriter, request *http.Request) {
 		start := time.Now()

@@ -1,13 +1,17 @@
 package config
 
 import (
+	"fmt"
+
 	"github.com/pkg/errors"
 	"github.com/spf13/viper"
 )
 
+var ErrConfigRead = errors.New("unable to read config file")
+
 type Config struct {
 	Logger  LoggerConf
-	Http    HttpConf
+	HTTP    HTTPConf
 	Storage StorageConf
 }
 
@@ -19,7 +23,7 @@ type LoggerConf struct {
 	Age     int
 }
 
-type HttpConf struct {
+type HTTPConf struct {
 	Host string
 	Port string
 }
@@ -29,13 +33,11 @@ type StorageConf struct {
 	DSN            string
 }
 
-var ErrReadConfig = errors.New("unable to read the config")
-
 func NewConfig(path string) (*Config, error) {
 	viper.SetConfigFile(path)
 
 	if err := viper.ReadInConfig(); err != nil {
-		return nil, errors.Wrap(ErrReadConfig, path)
+		return nil, fmt.Errorf("%w: %s", ErrConfigRead, path)
 	}
 
 	return &Config{
@@ -46,7 +48,7 @@ func NewConfig(path string) (*Config, error) {
 			viper.GetInt("logger.backups"),
 			viper.GetInt("logger.age"),
 		},
-		HttpConf{
+		HTTPConf{
 			viper.GetString("http.host"),
 			viper.GetString("http.port"),
 		},
@@ -78,11 +80,11 @@ func (c *Config) GetLoggerAge() int {
 }
 
 func (c *Config) GetServerHost() string {
-	return c.Http.Host
+	return c.HTTP.Host
 }
 
 func (c *Config) GetServerPort() string {
-	return c.Http.Port
+	return c.HTTP.Port
 }
 
 func (c *Config) GetStorageImplementation() string {

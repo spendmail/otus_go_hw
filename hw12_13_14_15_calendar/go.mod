@@ -17,4 +17,5 @@ require (
 	go.uber.org/zap v1.17.0
 	golang.org/x/crypto v0.0.0-20210711020723-a769d52b0f97 // indirect
 	gopkg.in/natefinch/lumberjack.v2 v2.0.0
+	mvdan.cc/gofumpt v0.1.1 // indirect
 )

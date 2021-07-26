@@ -38,12 +38,14 @@ type RequestHandler struct {
 	App Application
 }
 
+// Hello processes a root url.
 func (h *RequestHandler) Hello(writer http.ResponseWriter, request *http.Request) {
 	writer.Header().Set("Content-Type", "text/html; charset=utf-8")
 	writer.WriteHeader(http.StatusOK)
 	writer.Write([]byte("Hello, World!"))
 }
 
+// NewServer returns a new server instance.
 func NewServer(config Config, app Application, logger Logger) *Server {
 	handler := &RequestHandler{
 		App: app,
@@ -63,16 +65,18 @@ func NewServer(config Config, app Application, logger Logger) *Server {
 	}
 }
 
+// Start launches a HTTP server.
 func (s *Server) Start(ctx context.Context) error {
 	err := s.server.ListenAndServe()
 	if err != nil {
-		s.logger.Error(err.Error())
+		return err
 	}
 
 	<-ctx.Done()
 	return nil
 }
 
+// Stop suspends HTTP server.
 func (s *Server) Stop(ctx context.Context) error {
 	return s.server.Shutdown(ctx)
 }

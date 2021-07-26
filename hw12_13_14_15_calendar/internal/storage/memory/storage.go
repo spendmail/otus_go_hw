@@ -16,14 +16,15 @@ type Storage struct {
 	events    map[int64]storage.Event
 }
 
+// New returns a new memory storage instance.
 func New() *Storage {
 	return &Storage{
 		events: make(map[int64]storage.Event),
 	}
 }
 
+// CreateEvent saves event into a memory storage.
 func (s *Storage) CreateEvent(ctx context.Context, event storage.Event) (storage.Event, error) {
-
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
@@ -34,8 +35,8 @@ func (s *Storage) CreateEvent(ctx context.Context, event storage.Event) (storage
 	return event, nil
 }
 
+// UpdateEvent updates event in memory storage if exists.
 func (s *Storage) UpdateEvent(ctx context.Context, event storage.Event) (storage.Event, error) {
-
 	var err error = nil
 
 	if _, ok := s.events[event.ID]; ok {
@@ -49,20 +50,18 @@ func (s *Storage) UpdateEvent(ctx context.Context, event storage.Event) (storage
 	return event, err
 }
 
+// RemoveEvent removes event from memory storage if exists.
 func (s *Storage) RemoveEvent(ctx context.Context, event storage.Event) error {
-
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
-	if _, ok := s.events[event.ID]; ok {
-		delete(s.events, event.ID)
-	}
+	delete(s.events, event.ID)
 
 	return nil
 }
 
+// GetDayAheadEvents returns a day events slice.
 func (s *Storage) GetDayAheadEvents(ctx context.Context) ([]storage.Event, error) {
-
 	start := time.Now()
 	end := time.Now().Add(24 * time.Hour)
 	var events []storage.Event
@@ -79,8 +78,8 @@ func (s *Storage) GetDayAheadEvents(ctx context.Context) ([]storage.Event, error
 	return events, nil
 }
 
+// GetWeekAheadEvents returns a week events slice.
 func (s *Storage) GetWeekAheadEvents(ctx context.Context) ([]storage.Event, error) {
-
 	start := time.Now()
 	end := time.Now().Add(24 * 7 * time.Hour)
 	var events []storage.Event
@@ -97,8 +96,8 @@ func (s *Storage) GetWeekAheadEvents(ctx context.Context) ([]storage.Event, erro
 	return events, nil
 }
 
+// GetMonthAheadEvents returns a month events slice.
 func (s *Storage) GetMonthAheadEvents(ctx context.Context) ([]storage.Event, error) {
-
 	start := time.Now()
 	end := time.Now().Add(24 * 7 * 30 * time.Hour)
 	var events []storage.Event

@@ -7,8 +7,8 @@
     age = 30
 
 [storage]
-# implementation = "sql"
-implementation = "memory"
+implementation = "sql"
+# implementation = "memory"
 dsn = "pgsql://calendar:calendar@localhost:5432/calendar?sslmode=disable"
 
 [http]

@@ -9,6 +9,7 @@ import (
 	"syscall"
 	"time"
 
+	_ "github.com/jackc/pgx/stdlib"
 	"github.com/spendmail/otus_go_hw/hw12_13_14_15_calendar/internal/app"
 	internalconfig "github.com/spendmail/otus_go_hw/hw12_13_14_15_calendar/internal/config"
 	internallogger "github.com/spendmail/otus_go_hw/hw12_13_14_15_calendar/internal/logger"
@@ -30,22 +31,28 @@ func main() {
 		return
 	}
 
+	// Config initialization.
+	config, err := internalconfig.NewConfig(configPath)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// Logger initialization.
+	logger := internallogger.New(config)
+
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
-	config, err := internalconfig.NewConfig(configPath)
-	if err != nil {
-		log.Fatal(nil)
-	}
-
-	logger := internallogger.New(config)
-
+	// Storage initialization.
 	storage, err := factorystorage.GetStorage(ctx, config)
 	if err != nil {
 		logger.Error(err.Error())
 	}
 
+	// Application initialization.
 	calendar := app.New(logger, storage)
+
+	// HTTP server initialization.
 	server := internalhttp.NewServer(config, calendar, logger)
 
 	go func() {
@@ -66,7 +73,7 @@ func main() {
 		defer cancel()
 
 		if err := server.Stop(ctx); err != nil {
-			logger.Error("failed to stop http server: " + err.Error())
+			logger.Error(err.Error())
 		}
 	}()
 
@@ -74,7 +81,7 @@ func main() {
 
 	// Locking till server is listening the socket.
 	if err := server.Start(ctx); err != nil {
-		logger.Error("failed to start http server: " + err.Error())
+		logger.Error(err.Error())
 		cancel()
 		os.Exit(1) //nolint:gocritic
 	}

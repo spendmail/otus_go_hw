@@ -42,19 +42,19 @@ func New(config Config) *Storage {
 func (s *Storage) Connect(ctx context.Context) error {
 	db, err := sqlx.ConnectContext(ctx, "pgx", s.Config.GetStorageDSN())
 	if err != nil {
-		err = fmt.Errorf("%w: %s", ErrDatabaseConnect, err.Error())
+		return fmt.Errorf("%w: %v", ErrDatabaseConnect, err)
 	}
 
 	s.db = db
 
-	return err
+	return nil
 }
 
 // Close breaks the database connection.
 func (s *Storage) Close() error {
 	err := s.db.Close()
 	if err != nil {
-		err = fmt.Errorf("%w: %s", ErrDatabaseClose, err.Error())
+		err = fmt.Errorf("%w: %v", ErrDatabaseClose, err)
 	}
 
 	return err
@@ -70,8 +70,7 @@ func (s *Storage) CreateEvent(ctx context.Context, event storage.Event) (storage
 
 	rows, err := s.db.NamedQueryContext(ctx, query, event)
 	if err != nil {
-		err = fmt.Errorf("%w: %s", ErrCreateEvent, err.Error())
-		return event, err
+		return storage.Event{}, fmt.Errorf("%w: %v", ErrCreateEvent, err)
 	}
 
 	defer rows.Close()
@@ -80,8 +79,7 @@ func (s *Storage) CreateEvent(ctx context.Context, event storage.Event) (storage
 		results := make(map[string]interface{})
 		err := rows.MapScan(results)
 		if err != nil {
-			err = fmt.Errorf("%w: %s", ErrCreateEvent, err.Error())
-			return event, err
+			return storage.Event{}, fmt.Errorf("%w: %v", ErrCreateEvent, err)
 		}
 
 		event.ID = results["id"].(int64)
@@ -104,8 +102,7 @@ func (s *Storage) UpdateEvent(ctx context.Context, event storage.Event) (storage
 
 	_, err := s.db.NamedExecContext(ctx, query, event)
 	if err != nil {
-		err = fmt.Errorf("%w: %s", ErrUpdateEvent, err.Error())
-		return event, err
+		return storage.Event{}, fmt.Errorf("%w: %v", ErrUpdateEvent, err)
 	}
 
 	return event, nil
@@ -116,8 +113,7 @@ func (s *Storage) RemoveEvent(ctx context.Context, event storage.Event) error {
 	query := "DELETE FROM app_event WHERE id = :id"
 	_, err := s.db.NamedExecContext(ctx, query, event)
 	if err != nil {
-		err = fmt.Errorf("%w: %s", ErrRemoveEvent, err.Error())
-		return err
+		return fmt.Errorf("%w: %v", ErrRemoveEvent, err)
 	}
 
 	return nil
@@ -130,8 +126,7 @@ func (s *Storage) GetDayAheadEvents(ctx context.Context) ([]storage.Event, error
 	query := "SELECT * FROM app_event WHERE begin_date > NOW() AND begin_date < NOW() + interval '1 day'"
 	rows, err := s.db.NamedQueryContext(ctx, query, storage.Event{})
 	if err != nil {
-		err = fmt.Errorf("%w: %s", ErrGetDayAheadEvents, err.Error())
-		return []storage.Event{}, err
+		return nil, fmt.Errorf("%w: %v", ErrGetDayAheadEvents, err)
 	}
 
 	defer rows.Close()
@@ -141,8 +136,7 @@ func (s *Storage) GetDayAheadEvents(ctx context.Context) ([]storage.Event, error
 
 		err := rows.StructScan(&event)
 		if err != nil {
-			err = fmt.Errorf("%w: %s", ErrGetDayAheadEvents, err.Error())
-			return []storage.Event{}, err
+			return nil, fmt.Errorf("%w: %v", ErrGetDayAheadEvents, err)
 		}
 
 		events = append(events, event)
@@ -158,8 +152,7 @@ func (s *Storage) GetWeekAheadEvents(ctx context.Context) ([]storage.Event, erro
 	query := "SELECT * FROM app_event WHERE begin_date > NOW() AND begin_date < NOW() + interval '1 week'"
 	rows, err := s.db.NamedQueryContext(ctx, query, storage.Event{})
 	if err != nil {
-		err = fmt.Errorf("%w: %s", ErrGetWeekAheadEvents, err.Error())
-		return []storage.Event{}, err
+		return nil, fmt.Errorf("%w: %v", ErrGetWeekAheadEvents, err)
 	}
 
 	defer rows.Close()
@@ -169,8 +162,7 @@ func (s *Storage) GetWeekAheadEvents(ctx context.Context) ([]storage.Event, erro
 
 		err := rows.StructScan(&event)
 		if err != nil {
-			err = fmt.Errorf("%w: %s", ErrGetWeekAheadEvents, err.Error())
-			return []storage.Event{}, err
+			return nil, fmt.Errorf("%w: %v", ErrGetWeekAheadEvents, err)
 		}
 
 		events = append(events, event)
@@ -186,8 +178,7 @@ func (s *Storage) GetMonthAheadEvents(ctx context.Context) ([]storage.Event, err
 	query := "SELECT * FROM app_event WHERE begin_date > NOW() AND begin_date < NOW() + interval '1 month'"
 	rows, err := s.db.NamedQueryContext(ctx, query, storage.Event{})
 	if err != nil {
-		err = fmt.Errorf("%w: %s", ErrGetMonthAheadEvents, err.Error())
-		return []storage.Event{}, err
+		return nil, fmt.Errorf("%w: %v", ErrGetMonthAheadEvents, err)
 	}
 
 	defer rows.Close()
@@ -197,8 +188,7 @@ func (s *Storage) GetMonthAheadEvents(ctx context.Context) ([]storage.Event, err
 
 		err := rows.StructScan(&event)
 		if err != nil {
-			err = fmt.Errorf("%w: %s", ErrGetMonthAheadEvents, err.Error())
-			return []storage.Event{}, err
+			return nil, fmt.Errorf("%w: %v", ErrGetMonthAheadEvents, err)
 		}
 
 		events = append(events, event)

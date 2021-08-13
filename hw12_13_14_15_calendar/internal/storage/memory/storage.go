@@ -39,7 +39,11 @@ func (s *Storage) CreateEvent(ctx context.Context, event storage.Event) (storage
 func (s *Storage) UpdateEvent(ctx context.Context, event storage.Event) (storage.Event, error) {
 	var err error = nil
 
-	if _, ok := s.events[event.ID]; ok {
+	s.mu.RLock()
+	_, isSet := s.events[event.ID] //nolint:ifshort
+	s.mu.RUnlock()
+
+	if isSet {
 		s.mu.Lock()
 		s.events[event.ID] = event
 		s.mu.Unlock()

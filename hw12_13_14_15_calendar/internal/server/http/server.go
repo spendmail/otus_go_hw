@@ -66,14 +66,8 @@ func NewServer(config Config, app Application, logger Logger) *Server {
 }
 
 // Start launches a HTTP server.
-func (s *Server) Start(ctx context.Context) error {
-	err := s.server.ListenAndServe()
-	if err != nil {
-		return err
-	}
-
-	<-ctx.Done()
-	return nil
+func (s *Server) Start() error {
+	return s.server.ListenAndServe()
 }
 
 // Stop suspends HTTP server.

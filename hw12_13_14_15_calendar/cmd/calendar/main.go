@@ -47,6 +47,8 @@ func main() {
 	storage, err := factorystorage.GetStorage(ctx, config)
 	if err != nil {
 		logger.Error(err.Error())
+		cancel()
+		os.Exit(1) //nolint:gocritic
 	}
 
 	// Application initialization.
@@ -80,9 +82,9 @@ func main() {
 	logger.Info("calendar is running...")
 
 	// Locking till server is listening the socket.
-	if err := server.Start(ctx); err != nil {
+	if err := server.Start(); err != nil {
 		logger.Error(err.Error())
 		cancel()
-		os.Exit(1) //nolint:gocritic
+		os.Exit(1)
 	}
 }

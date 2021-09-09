@@ -6,6 +6,7 @@ import (
 	"log"
 	"os"
 	"os/signal"
+	"sync"
 	"syscall"
 	"time"
 
@@ -13,6 +14,7 @@ import (
 	"github.com/spendmail/otus_go_hw/hw12_13_14_15_calendar/internal/app"
 	internalconfig "github.com/spendmail/otus_go_hw/hw12_13_14_15_calendar/internal/config"
 	internallogger "github.com/spendmail/otus_go_hw/hw12_13_14_15_calendar/internal/logger"
+	internalgrpc "github.com/spendmail/otus_go_hw/hw12_13_14_15_calendar/internal/server/grpc"
 	internalhttp "github.com/spendmail/otus_go_hw/hw12_13_14_15_calendar/internal/server/http"
 	factorystorage "github.com/spendmail/otus_go_hw/hw12_13_14_15_calendar/internal/storage/factory"
 )
@@ -54,10 +56,18 @@ func main() {
 	// Application initialization.
 	calendar := app.New(logger, storage)
 
-	// HTTP server initialization.
-	server := internalhttp.NewServer(config, calendar, logger)
+	// HTTP Server initialization.
+	httpServer := internalhttp.NewServer(config, calendar, logger)
 
+	// GRPC Server initialization.
+	grpcServer := internalgrpc.NewServer(config, calendar, logger)
+
+	var wg sync.WaitGroup
+
+	wg.Add(1)
 	go func() {
+		defer wg.Done()
+
 		signals := make(chan os.Signal, 1)
 		signal.Notify(signals, syscall.SIGINT, syscall.SIGHUP)
 
@@ -74,17 +84,42 @@ func main() {
 		ctx, cancel := context.WithTimeout(context.Background(), time.Second*3)
 		defer cancel()
 
-		if err := server.Stop(ctx); err != nil {
+		if err := httpServer.Stop(ctx); err != nil {
 			logger.Error(err.Error())
+		}
+
+		grpcServer.Stop()
+	}()
+
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+
+		logger.Info("starting grpc server...")
+
+		// Locking over here until server is stopped.
+		if err := grpcServer.Start(); err != nil {
+			logger.Error(err.Error())
+			cancel()
+			os.Exit(1)
+		}
+	}()
+
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+
+		logger.Info("starting http server...")
+
+		// Locking over here until server is stopped.
+		if err := httpServer.Start(); err != nil {
+			logger.Error(err.Error())
+			cancel()
+			os.Exit(1)
 		}
 	}()
 
 	logger.Info("calendar is running...")
 
-	// Locking till server is listening the socket.
-	if err := server.Start(); err != nil {
-		logger.Error(err.Error())
-		cancel()
-		os.Exit(1)
-	}
+	wg.Wait()
 }

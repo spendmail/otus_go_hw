@@ -13,6 +13,7 @@ type Config struct {
 	Logger  LoggerConf
 	HTTP    HTTPConf
 	Storage StorageConf
+	GRPC    GRPCConf
 }
 
 type LoggerConf struct {
@@ -24,6 +25,11 @@ type LoggerConf struct {
 }
 
 type HTTPConf struct {
+	Host string
+	Port string
+}
+
+type GRPCConf struct {
 	Host string
 	Port string
 }
@@ -56,6 +62,10 @@ func NewConfig(path string) (*Config, error) {
 			viper.GetString("storage.implementation"),
 			viper.GetString("storage.dsn"),
 		},
+		GRPCConf{
+			viper.GetString("grpc.host"),
+			viper.GetString("grpc.port"),
+		},
 	}, nil
 }
 
@@ -79,12 +89,20 @@ func (c *Config) GetLoggerAge() int {
 	return c.Logger.Age
 }
 
-func (c *Config) GetServerHost() string {
+func (c *Config) GetHTTPHost() string {
 	return c.HTTP.Host
 }
 
-func (c *Config) GetServerPort() string {
+func (c *Config) GetHTTPPort() string {
 	return c.HTTP.Port
+}
+
+func (c *Config) GetGrpcHost() string {
+	return c.GRPC.Host
+}
+
+func (c *Config) GetGrpcPort() string {
+	return c.GRPC.Port
 }
 
 func (c *Config) GetStorageImplementation() string {

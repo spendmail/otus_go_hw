@@ -4,10 +4,11 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/spendmail/otus_go_hw/hw12_13_14_15_calendar/internal/storage"
 	"io/ioutil"
 	"net"
 	"net/http"
+
+	"github.com/spendmail/otus_go_hw/hw12_13_14_15_calendar/internal/storage"
 )
 
 type Logger interface {
@@ -23,8 +24,8 @@ type Server struct {
 }
 
 type Config interface {
-	GetServerHost() string
-	GetServerPort() string
+	GetHTTPHost() string
+	GetHTTPPort() string
 }
 
 type Application interface {
@@ -82,8 +83,6 @@ func (h *RequestHandler) Create(writer http.ResponseWriter, request *http.Reques
 
 // Update handles updating the event.
 func (h *RequestHandler) Update(writer http.ResponseWriter, request *http.Request) {
-	event := storage.Event{}
-
 	b, err := ioutil.ReadAll(request.Body)
 	if err != nil {
 		writer.WriteHeader(http.StatusBadRequest)
@@ -91,6 +90,7 @@ func (h *RequestHandler) Update(writer http.ResponseWriter, request *http.Reques
 		return
 	}
 
+	event := storage.Event{}
 	if err = json.Unmarshal(b, &event); err != nil {
 		writer.WriteHeader(http.StatusInternalServerError)
 		json.NewEncoder(writer).Encode(fmt.Sprintf("Unable to unmarshal the request: %q", err.Error()))
@@ -197,7 +197,7 @@ func NewServer(config Config, app Application, logger Logger) *Server {
 	mux.HandleFunc("/event/month", loggingMiddleware(handler.GetMonthAheadEvents, logger))
 
 	server := &http.Server{
-		Addr:    net.JoinHostPort(config.GetServerHost(), config.GetServerPort()),
+		Addr:    net.JoinHostPort(config.GetHTTPHost(), config.GetHTTPPort()),
 		Handler: mux,
 	}
 

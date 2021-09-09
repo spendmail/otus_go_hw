@@ -81,3 +81,7 @@ func (l *Logger) Warn(msg string, args ...interface{}) {
 func (l *Logger) Error(msg string, args ...interface{}) {
 	l.Logger.Sugar().Errorw(msg, args...)
 }
+
+func (l *Logger) GetZapLogger() *zap.Logger {
+	return l.Logger
+}

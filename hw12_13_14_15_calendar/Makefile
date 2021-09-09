@@ -35,4 +35,10 @@ migrate:
 	(which goose > /dev/null) || go get -u github.com/pressly/goose/cmd/goose
 	goose -dir migrations postgres "user=calendar password=calendar dbname=calendar sslmode=disable" up
 
+generate:
+	mkdir -p internal/server/grpc/eventpb
+	protoc --go_out ./internal/server/grpc/eventpb/ --go_opt paths=source_relative \
+    --go-grpc_out ./internal/server/grpc/eventpb/ --go-grpc_opt paths=source_relative \
+    api/EventService.proto
+
 .PHONY: build run build-img run-img version test lint

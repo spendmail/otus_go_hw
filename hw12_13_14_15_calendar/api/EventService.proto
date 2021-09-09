@@ -1,7 +1,32 @@
 syntax = "proto3";
 
 package event;
+option go_package = "./;eventpb";
 
 message Event {
-    // TODO
+  int64 id = 1;
+  string title = 2;
+  string begin_date = 3;
+  string end_date = 4;
+  string description = 5;
+  int64 owner_id = 6;
+}
+
+message Message {
+  string message = 1;
+}
+
+message Events {
+  repeated Event items = 1;
+}
+
+message Empty {}
+
+service Calendar {
+  rpc CreateEvent(Event) returns (Event) {}
+  rpc UpdateEvent(Event) returns (Event) {}
+  rpc RemoveEvent(Event) returns (Message) {}
+  rpc GetDayAheadEvents(Empty) returns (Events) {}
+  rpc GetWeekAheadEvents(Empty) returns (Events) {}
+  rpc GetMonthAheadEvents(Empty) returns (Events) {}
 }

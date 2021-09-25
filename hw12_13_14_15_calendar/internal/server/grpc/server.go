@@ -1,3 +1,4 @@
+//go:generate protoc --go_out ./eventpb/ --go-grpc_out ./eventpb/ ./api/EventService.proto
 package internalgrpc
 
 import (
@@ -9,7 +10,7 @@ import (
 
 	grpc_middleware "github.com/grpc-ecosystem/go-grpc-middleware"
 	grpc_zap "github.com/grpc-ecosystem/go-grpc-middleware/logging/zap"
-	pb "github.com/spendmail/otus_go_hw/hw12_13_14_15_calendar/internal/server/grpc/eventpb/api"
+	pb "github.com/spendmail/otus_go_hw/hw12_13_14_15_calendar/internal/server/grpc/eventpb"
 	"github.com/spendmail/otus_go_hw/hw12_13_14_15_calendar/internal/storage"
 	"go.uber.org/zap"
 	"google.golang.org/grpc"

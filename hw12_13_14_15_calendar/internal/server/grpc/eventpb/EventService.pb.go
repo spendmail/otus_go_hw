@@ -7,11 +7,10 @@
 package eventpb
 
 import (
-	reflect "reflect"
-	sync "sync"
-
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
+	reflect "reflect"
+	sync "sync"
 )
 
 const (
@@ -296,16 +295,13 @@ func file_api_EventService_proto_rawDescGZIP() []byte {
 	return file_api_EventService_proto_rawDescData
 }
 
-var (
-	file_api_EventService_proto_msgTypes = make([]protoimpl.MessageInfo, 4)
-	file_api_EventService_proto_goTypes  = []interface{}{
-		(*Event)(nil),   // 0: event.Event
-		(*Message)(nil), // 1: event.Message
-		(*Events)(nil),  // 2: event.Events
-		(*Empty)(nil),   // 3: event.Empty
-	}
-)
-
+var file_api_EventService_proto_msgTypes = make([]protoimpl.MessageInfo, 4)
+var file_api_EventService_proto_goTypes = []interface{}{
+	(*Event)(nil),   // 0: event.Event
+	(*Message)(nil), // 1: event.Message
+	(*Events)(nil),  // 2: event.Events
+	(*Empty)(nil),   // 3: event.Empty
+}
 var file_api_EventService_proto_depIdxs = []int32{
 	0, // 0: event.Events.items:type_name -> event.Event
 	0, // 1: event.Calendar.CreateEvent:input_type -> event.Event

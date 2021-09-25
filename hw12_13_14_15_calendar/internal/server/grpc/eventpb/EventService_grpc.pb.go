@@ -4,7 +4,6 @@ package eventpb
 
 import (
 	context "context"
-
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
@@ -103,28 +102,24 @@ type CalendarServer interface {
 }
 
 // UnimplementedCalendarServer must be embedded to have forward compatible implementations.
-type UnimplementedCalendarServer struct{}
+type UnimplementedCalendarServer struct {
+}
 
 func (UnimplementedCalendarServer) CreateEvent(context.Context, *Event) (*Event, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateEvent not implemented")
 }
-
 func (UnimplementedCalendarServer) UpdateEvent(context.Context, *Event) (*Event, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method UpdateEvent not implemented")
 }
-
 func (UnimplementedCalendarServer) RemoveEvent(context.Context, *Event) (*Message, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method RemoveEvent not implemented")
 }
-
 func (UnimplementedCalendarServer) GetDayAheadEvents(context.Context, *Empty) (*Events, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetDayAheadEvents not implemented")
 }
-
 func (UnimplementedCalendarServer) GetWeekAheadEvents(context.Context, *Empty) (*Events, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetWeekAheadEvents not implemented")
 }
-
 func (UnimplementedCalendarServer) GetMonthAheadEvents(context.Context, *Empty) (*Events, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetMonthAheadEvents not implemented")
 }

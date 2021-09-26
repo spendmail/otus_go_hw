@@ -68,17 +68,16 @@ func main() {
 	go func() {
 		defer wg.Done()
 
-		signals := make(chan os.Signal, 1)
-		signal.Notify(signals, syscall.SIGINT, syscall.SIGHUP)
+		signalNotifyCtx, stop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGHUP)
+		defer stop()
 
 		// Locking until OS signal is sent or context cancel func is called.
 		select {
 		case <-ctx.Done():
 			return
-		case <-signals:
+		case <-signalNotifyCtx.Done():
 		}
 
-		signal.Stop(signals)
 		cancel()
 
 		ctx, cancel := context.WithTimeout(context.Background(), time.Second*3)

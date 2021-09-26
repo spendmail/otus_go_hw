@@ -107,16 +107,16 @@ func (x *Event) GetOwnerId() int64 {
 	return 0
 }
 
-type Message struct {
+type CreateEventRequest struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	Message string `protobuf:"bytes,1,opt,name=message,proto3" json:"message,omitempty"`
+	Event *Event `protobuf:"bytes,1,opt,name=event,proto3" json:"event,omitempty"`
 }
 
-func (x *Message) Reset() {
-	*x = Message{}
+func (x *CreateEventRequest) Reset() {
+	*x = CreateEventRequest{}
 	if protoimpl.UnsafeEnabled {
 		mi := &file_api_EventService_proto_msgTypes[1]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -124,13 +124,13 @@ func (x *Message) Reset() {
 	}
 }
 
-func (x *Message) String() string {
+func (x *CreateEventRequest) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*Message) ProtoMessage() {}
+func (*CreateEventRequest) ProtoMessage() {}
 
-func (x *Message) ProtoReflect() protoreflect.Message {
+func (x *CreateEventRequest) ProtoReflect() protoreflect.Message {
 	mi := &file_api_EventService_proto_msgTypes[1]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -142,28 +142,28 @@ func (x *Message) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use Message.ProtoReflect.Descriptor instead.
-func (*Message) Descriptor() ([]byte, []int) {
+// Deprecated: Use CreateEventRequest.ProtoReflect.Descriptor instead.
+func (*CreateEventRequest) Descriptor() ([]byte, []int) {
 	return file_api_EventService_proto_rawDescGZIP(), []int{1}
 }
 
-func (x *Message) GetMessage() string {
+func (x *CreateEventRequest) GetEvent() *Event {
 	if x != nil {
-		return x.Message
+		return x.Event
 	}
-	return ""
+	return nil
 }
 
-type Events struct {
+type CreateEventResponse struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	Items []*Event `protobuf:"bytes,1,rep,name=items,proto3" json:"items,omitempty"`
+	Event *Event `protobuf:"bytes,1,opt,name=event,proto3" json:"event,omitempty"`
 }
 
-func (x *Events) Reset() {
-	*x = Events{}
+func (x *CreateEventResponse) Reset() {
+	*x = CreateEventResponse{}
 	if protoimpl.UnsafeEnabled {
 		mi := &file_api_EventService_proto_msgTypes[2]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -171,13 +171,13 @@ func (x *Events) Reset() {
 	}
 }
 
-func (x *Events) String() string {
+func (x *CreateEventResponse) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*Events) ProtoMessage() {}
+func (*CreateEventResponse) ProtoMessage() {}
 
-func (x *Events) ProtoReflect() protoreflect.Message {
+func (x *CreateEventResponse) ProtoReflect() protoreflect.Message {
 	mi := &file_api_EventService_proto_msgTypes[2]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -189,26 +189,28 @@ func (x *Events) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use Events.ProtoReflect.Descriptor instead.
-func (*Events) Descriptor() ([]byte, []int) {
+// Deprecated: Use CreateEventResponse.ProtoReflect.Descriptor instead.
+func (*CreateEventResponse) Descriptor() ([]byte, []int) {
 	return file_api_EventService_proto_rawDescGZIP(), []int{2}
 }
 
-func (x *Events) GetItems() []*Event {
+func (x *CreateEventResponse) GetEvent() *Event {
 	if x != nil {
-		return x.Items
+		return x.Event
 	}
 	return nil
 }
 
-type Empty struct {
+type UpdateEventRequest struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
+
+	Event *Event `protobuf:"bytes,1,opt,name=event,proto3" json:"event,omitempty"`
 }
 
-func (x *Empty) Reset() {
-	*x = Empty{}
+func (x *UpdateEventRequest) Reset() {
+	*x = UpdateEventRequest{}
 	if protoimpl.UnsafeEnabled {
 		mi := &file_api_EventService_proto_msgTypes[3]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -216,13 +218,13 @@ func (x *Empty) Reset() {
 	}
 }
 
-func (x *Empty) String() string {
+func (x *UpdateEventRequest) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*Empty) ProtoMessage() {}
+func (*UpdateEventRequest) ProtoMessage() {}
 
-func (x *Empty) ProtoReflect() protoreflect.Message {
+func (x *UpdateEventRequest) ProtoReflect() protoreflect.Message {
 	mi := &file_api_EventService_proto_msgTypes[3]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -234,9 +236,403 @@ func (x *Empty) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use Empty.ProtoReflect.Descriptor instead.
-func (*Empty) Descriptor() ([]byte, []int) {
+// Deprecated: Use UpdateEventRequest.ProtoReflect.Descriptor instead.
+func (*UpdateEventRequest) Descriptor() ([]byte, []int) {
 	return file_api_EventService_proto_rawDescGZIP(), []int{3}
+}
+
+func (x *UpdateEventRequest) GetEvent() *Event {
+	if x != nil {
+		return x.Event
+	}
+	return nil
+}
+
+type UpdateEventResponse struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	Event *Event `protobuf:"bytes,1,opt,name=event,proto3" json:"event,omitempty"`
+}
+
+func (x *UpdateEventResponse) Reset() {
+	*x = UpdateEventResponse{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_api_EventService_proto_msgTypes[4]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *UpdateEventResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*UpdateEventResponse) ProtoMessage() {}
+
+func (x *UpdateEventResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_api_EventService_proto_msgTypes[4]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use UpdateEventResponse.ProtoReflect.Descriptor instead.
+func (*UpdateEventResponse) Descriptor() ([]byte, []int) {
+	return file_api_EventService_proto_rawDescGZIP(), []int{4}
+}
+
+func (x *UpdateEventResponse) GetEvent() *Event {
+	if x != nil {
+		return x.Event
+	}
+	return nil
+}
+
+type RemoveEventRequest struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	Id int64 `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
+}
+
+func (x *RemoveEventRequest) Reset() {
+	*x = RemoveEventRequest{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_api_EventService_proto_msgTypes[5]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *RemoveEventRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*RemoveEventRequest) ProtoMessage() {}
+
+func (x *RemoveEventRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_api_EventService_proto_msgTypes[5]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use RemoveEventRequest.ProtoReflect.Descriptor instead.
+func (*RemoveEventRequest) Descriptor() ([]byte, []int) {
+	return file_api_EventService_proto_rawDescGZIP(), []int{5}
+}
+
+func (x *RemoveEventRequest) GetId() int64 {
+	if x != nil {
+		return x.Id
+	}
+	return 0
+}
+
+type RemoveEventResponse struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+}
+
+func (x *RemoveEventResponse) Reset() {
+	*x = RemoveEventResponse{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_api_EventService_proto_msgTypes[6]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *RemoveEventResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*RemoveEventResponse) ProtoMessage() {}
+
+func (x *RemoveEventResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_api_EventService_proto_msgTypes[6]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use RemoveEventResponse.ProtoReflect.Descriptor instead.
+func (*RemoveEventResponse) Descriptor() ([]byte, []int) {
+	return file_api_EventService_proto_rawDescGZIP(), []int{6}
+}
+
+type GetDayAheadEventsRequest struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+}
+
+func (x *GetDayAheadEventsRequest) Reset() {
+	*x = GetDayAheadEventsRequest{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_api_EventService_proto_msgTypes[7]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *GetDayAheadEventsRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetDayAheadEventsRequest) ProtoMessage() {}
+
+func (x *GetDayAheadEventsRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_api_EventService_proto_msgTypes[7]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetDayAheadEventsRequest.ProtoReflect.Descriptor instead.
+func (*GetDayAheadEventsRequest) Descriptor() ([]byte, []int) {
+	return file_api_EventService_proto_rawDescGZIP(), []int{7}
+}
+
+type GetDayAheadEventsResponse struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	Items []*Event `protobuf:"bytes,1,rep,name=items,proto3" json:"items,omitempty"`
+}
+
+func (x *GetDayAheadEventsResponse) Reset() {
+	*x = GetDayAheadEventsResponse{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_api_EventService_proto_msgTypes[8]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *GetDayAheadEventsResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetDayAheadEventsResponse) ProtoMessage() {}
+
+func (x *GetDayAheadEventsResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_api_EventService_proto_msgTypes[8]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetDayAheadEventsResponse.ProtoReflect.Descriptor instead.
+func (*GetDayAheadEventsResponse) Descriptor() ([]byte, []int) {
+	return file_api_EventService_proto_rawDescGZIP(), []int{8}
+}
+
+func (x *GetDayAheadEventsResponse) GetItems() []*Event {
+	if x != nil {
+		return x.Items
+	}
+	return nil
+}
+
+type GetWeekAheadEventsRequest struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+}
+
+func (x *GetWeekAheadEventsRequest) Reset() {
+	*x = GetWeekAheadEventsRequest{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_api_EventService_proto_msgTypes[9]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *GetWeekAheadEventsRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetWeekAheadEventsRequest) ProtoMessage() {}
+
+func (x *GetWeekAheadEventsRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_api_EventService_proto_msgTypes[9]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetWeekAheadEventsRequest.ProtoReflect.Descriptor instead.
+func (*GetWeekAheadEventsRequest) Descriptor() ([]byte, []int) {
+	return file_api_EventService_proto_rawDescGZIP(), []int{9}
+}
+
+type GetWeekAheadEventsResponse struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	Items []*Event `protobuf:"bytes,1,rep,name=items,proto3" json:"items,omitempty"`
+}
+
+func (x *GetWeekAheadEventsResponse) Reset() {
+	*x = GetWeekAheadEventsResponse{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_api_EventService_proto_msgTypes[10]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *GetWeekAheadEventsResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetWeekAheadEventsResponse) ProtoMessage() {}
+
+func (x *GetWeekAheadEventsResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_api_EventService_proto_msgTypes[10]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetWeekAheadEventsResponse.ProtoReflect.Descriptor instead.
+func (*GetWeekAheadEventsResponse) Descriptor() ([]byte, []int) {
+	return file_api_EventService_proto_rawDescGZIP(), []int{10}
+}
+
+func (x *GetWeekAheadEventsResponse) GetItems() []*Event {
+	if x != nil {
+		return x.Items
+	}
+	return nil
+}
+
+type GetMonthAheadEventsRequest struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+}
+
+func (x *GetMonthAheadEventsRequest) Reset() {
+	*x = GetMonthAheadEventsRequest{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_api_EventService_proto_msgTypes[11]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *GetMonthAheadEventsRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetMonthAheadEventsRequest) ProtoMessage() {}
+
+func (x *GetMonthAheadEventsRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_api_EventService_proto_msgTypes[11]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetMonthAheadEventsRequest.ProtoReflect.Descriptor instead.
+func (*GetMonthAheadEventsRequest) Descriptor() ([]byte, []int) {
+	return file_api_EventService_proto_rawDescGZIP(), []int{11}
+}
+
+type GetMonthAheadEventsResponse struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	Items []*Event `protobuf:"bytes,1,rep,name=items,proto3" json:"items,omitempty"`
+}
+
+func (x *GetMonthAheadEventsResponse) Reset() {
+	*x = GetMonthAheadEventsResponse{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_api_EventService_proto_msgTypes[12]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *GetMonthAheadEventsResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetMonthAheadEventsResponse) ProtoMessage() {}
+
+func (x *GetMonthAheadEventsResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_api_EventService_proto_msgTypes[12]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetMonthAheadEventsResponse.ProtoReflect.Descriptor instead.
+func (*GetMonthAheadEventsResponse) Descriptor() ([]byte, []int) {
+	return file_api_EventService_proto_rawDescGZIP(), []int{12}
+}
+
+func (x *GetMonthAheadEventsResponse) GetItems() []*Event {
+	if x != nil {
+		return x.Items
+	}
+	return nil
 }
 
 var File_api_EventService_proto protoreflect.FileDescriptor
@@ -254,33 +650,76 @@ var file_api_EventService_proto_rawDesc = []byte{
 	0x63, 0x72, 0x69, 0x70, 0x74, 0x69, 0x6f, 0x6e, 0x18, 0x05, 0x20, 0x01, 0x28, 0x09, 0x52, 0x0b,
 	0x64, 0x65, 0x73, 0x63, 0x72, 0x69, 0x70, 0x74, 0x69, 0x6f, 0x6e, 0x12, 0x19, 0x0a, 0x08, 0x6f,
 	0x77, 0x6e, 0x65, 0x72, 0x5f, 0x69, 0x64, 0x18, 0x06, 0x20, 0x01, 0x28, 0x03, 0x52, 0x07, 0x6f,
-	0x77, 0x6e, 0x65, 0x72, 0x49, 0x64, 0x22, 0x23, 0x0a, 0x07, 0x4d, 0x65, 0x73, 0x73, 0x61, 0x67,
-	0x65, 0x12, 0x18, 0x0a, 0x07, 0x6d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x18, 0x01, 0x20, 0x01,
-	0x28, 0x09, 0x52, 0x07, 0x6d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x22, 0x2c, 0x0a, 0x06, 0x45,
-	0x76, 0x65, 0x6e, 0x74, 0x73, 0x12, 0x22, 0x0a, 0x05, 0x69, 0x74, 0x65, 0x6d, 0x73, 0x18, 0x01,
+	0x77, 0x6e, 0x65, 0x72, 0x49, 0x64, 0x22, 0x38, 0x0a, 0x12, 0x43, 0x72, 0x65, 0x61, 0x74, 0x65,
+	0x45, 0x76, 0x65, 0x6e, 0x74, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x12, 0x22, 0x0a, 0x05,
+	0x65, 0x76, 0x65, 0x6e, 0x74, 0x18, 0x01, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x0c, 0x2e, 0x65, 0x76,
+	0x65, 0x6e, 0x74, 0x2e, 0x45, 0x76, 0x65, 0x6e, 0x74, 0x52, 0x05, 0x65, 0x76, 0x65, 0x6e, 0x74,
+	0x22, 0x39, 0x0a, 0x13, 0x43, 0x72, 0x65, 0x61, 0x74, 0x65, 0x45, 0x76, 0x65, 0x6e, 0x74, 0x52,
+	0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x22, 0x0a, 0x05, 0x65, 0x76, 0x65, 0x6e, 0x74,
+	0x18, 0x01, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x0c, 0x2e, 0x65, 0x76, 0x65, 0x6e, 0x74, 0x2e, 0x45,
+	0x76, 0x65, 0x6e, 0x74, 0x52, 0x05, 0x65, 0x76, 0x65, 0x6e, 0x74, 0x22, 0x38, 0x0a, 0x12, 0x55,
+	0x70, 0x64, 0x61, 0x74, 0x65, 0x45, 0x76, 0x65, 0x6e, 0x74, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73,
+	0x74, 0x12, 0x22, 0x0a, 0x05, 0x65, 0x76, 0x65, 0x6e, 0x74, 0x18, 0x01, 0x20, 0x01, 0x28, 0x0b,
+	0x32, 0x0c, 0x2e, 0x65, 0x76, 0x65, 0x6e, 0x74, 0x2e, 0x45, 0x76, 0x65, 0x6e, 0x74, 0x52, 0x05,
+	0x65, 0x76, 0x65, 0x6e, 0x74, 0x22, 0x39, 0x0a, 0x13, 0x55, 0x70, 0x64, 0x61, 0x74, 0x65, 0x45,
+	0x76, 0x65, 0x6e, 0x74, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x22, 0x0a, 0x05,
+	0x65, 0x76, 0x65, 0x6e, 0x74, 0x18, 0x01, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x0c, 0x2e, 0x65, 0x76,
+	0x65, 0x6e, 0x74, 0x2e, 0x45, 0x76, 0x65, 0x6e, 0x74, 0x52, 0x05, 0x65, 0x76, 0x65, 0x6e, 0x74,
+	0x22, 0x24, 0x0a, 0x12, 0x52, 0x65, 0x6d, 0x6f, 0x76, 0x65, 0x45, 0x76, 0x65, 0x6e, 0x74, 0x52,
+	0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x12, 0x0e, 0x0a, 0x02, 0x69, 0x64, 0x18, 0x01, 0x20, 0x01,
+	0x28, 0x03, 0x52, 0x02, 0x69, 0x64, 0x22, 0x15, 0x0a, 0x13, 0x52, 0x65, 0x6d, 0x6f, 0x76, 0x65,
+	0x45, 0x76, 0x65, 0x6e, 0x74, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22, 0x1a, 0x0a,
+	0x18, 0x47, 0x65, 0x74, 0x44, 0x61, 0x79, 0x41, 0x68, 0x65, 0x61, 0x64, 0x45, 0x76, 0x65, 0x6e,
+	0x74, 0x73, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x22, 0x3f, 0x0a, 0x19, 0x47, 0x65, 0x74,
+	0x44, 0x61, 0x79, 0x41, 0x68, 0x65, 0x61, 0x64, 0x45, 0x76, 0x65, 0x6e, 0x74, 0x73, 0x52, 0x65,
+	0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x22, 0x0a, 0x05, 0x69, 0x74, 0x65, 0x6d, 0x73, 0x18,
+	0x01, 0x20, 0x03, 0x28, 0x0b, 0x32, 0x0c, 0x2e, 0x65, 0x76, 0x65, 0x6e, 0x74, 0x2e, 0x45, 0x76,
+	0x65, 0x6e, 0x74, 0x52, 0x05, 0x69, 0x74, 0x65, 0x6d, 0x73, 0x22, 0x1b, 0x0a, 0x19, 0x47, 0x65,
+	0x74, 0x57, 0x65, 0x65, 0x6b, 0x41, 0x68, 0x65, 0x61, 0x64, 0x45, 0x76, 0x65, 0x6e, 0x74, 0x73,
+	0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x22, 0x40, 0x0a, 0x1a, 0x47, 0x65, 0x74, 0x57, 0x65,
+	0x65, 0x6b, 0x41, 0x68, 0x65, 0x61, 0x64, 0x45, 0x76, 0x65, 0x6e, 0x74, 0x73, 0x52, 0x65, 0x73,
+	0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x22, 0x0a, 0x05, 0x69, 0x74, 0x65, 0x6d, 0x73, 0x18, 0x01,
 	0x20, 0x03, 0x28, 0x0b, 0x32, 0x0c, 0x2e, 0x65, 0x76, 0x65, 0x6e, 0x74, 0x2e, 0x45, 0x76, 0x65,
-	0x6e, 0x74, 0x52, 0x05, 0x69, 0x74, 0x65, 0x6d, 0x73, 0x22, 0x07, 0x0a, 0x05, 0x45, 0x6d, 0x70,
-	0x74, 0x79, 0x32, 0xb2, 0x02, 0x0a, 0x08, 0x43, 0x61, 0x6c, 0x65, 0x6e, 0x64, 0x61, 0x72, 0x12,
-	0x2b, 0x0a, 0x0b, 0x43, 0x72, 0x65, 0x61, 0x74, 0x65, 0x45, 0x76, 0x65, 0x6e, 0x74, 0x12, 0x0c,
-	0x2e, 0x65, 0x76, 0x65, 0x6e, 0x74, 0x2e, 0x45, 0x76, 0x65, 0x6e, 0x74, 0x1a, 0x0c, 0x2e, 0x65,
-	0x76, 0x65, 0x6e, 0x74, 0x2e, 0x45, 0x76, 0x65, 0x6e, 0x74, 0x22, 0x00, 0x12, 0x2b, 0x0a, 0x0b,
-	0x55, 0x70, 0x64, 0x61, 0x74, 0x65, 0x45, 0x76, 0x65, 0x6e, 0x74, 0x12, 0x0c, 0x2e, 0x65, 0x76,
-	0x65, 0x6e, 0x74, 0x2e, 0x45, 0x76, 0x65, 0x6e, 0x74, 0x1a, 0x0c, 0x2e, 0x65, 0x76, 0x65, 0x6e,
-	0x74, 0x2e, 0x45, 0x76, 0x65, 0x6e, 0x74, 0x22, 0x00, 0x12, 0x2d, 0x0a, 0x0b, 0x52, 0x65, 0x6d,
-	0x6f, 0x76, 0x65, 0x45, 0x76, 0x65, 0x6e, 0x74, 0x12, 0x0c, 0x2e, 0x65, 0x76, 0x65, 0x6e, 0x74,
-	0x2e, 0x45, 0x76, 0x65, 0x6e, 0x74, 0x1a, 0x0e, 0x2e, 0x65, 0x76, 0x65, 0x6e, 0x74, 0x2e, 0x4d,
-	0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x22, 0x00, 0x12, 0x32, 0x0a, 0x11, 0x47, 0x65, 0x74, 0x44,
-	0x61, 0x79, 0x41, 0x68, 0x65, 0x61, 0x64, 0x45, 0x76, 0x65, 0x6e, 0x74, 0x73, 0x12, 0x0c, 0x2e,
-	0x65, 0x76, 0x65, 0x6e, 0x74, 0x2e, 0x45, 0x6d, 0x70, 0x74, 0x79, 0x1a, 0x0d, 0x2e, 0x65, 0x76,
-	0x65, 0x6e, 0x74, 0x2e, 0x45, 0x76, 0x65, 0x6e, 0x74, 0x73, 0x22, 0x00, 0x12, 0x33, 0x0a, 0x12,
-	0x47, 0x65, 0x74, 0x57, 0x65, 0x65, 0x6b, 0x41, 0x68, 0x65, 0x61, 0x64, 0x45, 0x76, 0x65, 0x6e,
-	0x74, 0x73, 0x12, 0x0c, 0x2e, 0x65, 0x76, 0x65, 0x6e, 0x74, 0x2e, 0x45, 0x6d, 0x70, 0x74, 0x79,
-	0x1a, 0x0d, 0x2e, 0x65, 0x76, 0x65, 0x6e, 0x74, 0x2e, 0x45, 0x76, 0x65, 0x6e, 0x74, 0x73, 0x22,
-	0x00, 0x12, 0x34, 0x0a, 0x13, 0x47, 0x65, 0x74, 0x4d, 0x6f, 0x6e, 0x74, 0x68, 0x41, 0x68, 0x65,
-	0x61, 0x64, 0x45, 0x76, 0x65, 0x6e, 0x74, 0x73, 0x12, 0x0c, 0x2e, 0x65, 0x76, 0x65, 0x6e, 0x74,
-	0x2e, 0x45, 0x6d, 0x70, 0x74, 0x79, 0x1a, 0x0d, 0x2e, 0x65, 0x76, 0x65, 0x6e, 0x74, 0x2e, 0x45,
-	0x76, 0x65, 0x6e, 0x74, 0x73, 0x22, 0x00, 0x42, 0x0c, 0x5a, 0x0a, 0x2e, 0x2f, 0x3b, 0x65, 0x76,
-	0x65, 0x6e, 0x74, 0x70, 0x62, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
+	0x6e, 0x74, 0x52, 0x05, 0x69, 0x74, 0x65, 0x6d, 0x73, 0x22, 0x1c, 0x0a, 0x1a, 0x47, 0x65, 0x74,
+	0x4d, 0x6f, 0x6e, 0x74, 0x68, 0x41, 0x68, 0x65, 0x61, 0x64, 0x45, 0x76, 0x65, 0x6e, 0x74, 0x73,
+	0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x22, 0x41, 0x0a, 0x1b, 0x47, 0x65, 0x74, 0x4d, 0x6f,
+	0x6e, 0x74, 0x68, 0x41, 0x68, 0x65, 0x61, 0x64, 0x45, 0x76, 0x65, 0x6e, 0x74, 0x73, 0x52, 0x65,
+	0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x22, 0x0a, 0x05, 0x69, 0x74, 0x65, 0x6d, 0x73, 0x18,
+	0x01, 0x20, 0x03, 0x28, 0x0b, 0x32, 0x0c, 0x2e, 0x65, 0x76, 0x65, 0x6e, 0x74, 0x2e, 0x45, 0x76,
+	0x65, 0x6e, 0x74, 0x52, 0x05, 0x69, 0x74, 0x65, 0x6d, 0x73, 0x32, 0xf9, 0x03, 0x0a, 0x08, 0x43,
+	0x61, 0x6c, 0x65, 0x6e, 0x64, 0x61, 0x72, 0x12, 0x46, 0x0a, 0x0b, 0x43, 0x72, 0x65, 0x61, 0x74,
+	0x65, 0x45, 0x76, 0x65, 0x6e, 0x74, 0x12, 0x19, 0x2e, 0x65, 0x76, 0x65, 0x6e, 0x74, 0x2e, 0x43,
+	0x72, 0x65, 0x61, 0x74, 0x65, 0x45, 0x76, 0x65, 0x6e, 0x74, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73,
+	0x74, 0x1a, 0x1a, 0x2e, 0x65, 0x76, 0x65, 0x6e, 0x74, 0x2e, 0x43, 0x72, 0x65, 0x61, 0x74, 0x65,
+	0x45, 0x76, 0x65, 0x6e, 0x74, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22, 0x00, 0x12,
+	0x46, 0x0a, 0x0b, 0x55, 0x70, 0x64, 0x61, 0x74, 0x65, 0x45, 0x76, 0x65, 0x6e, 0x74, 0x12, 0x19,
+	0x2e, 0x65, 0x76, 0x65, 0x6e, 0x74, 0x2e, 0x55, 0x70, 0x64, 0x61, 0x74, 0x65, 0x45, 0x76, 0x65,
+	0x6e, 0x74, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x1a, 0x2e, 0x65, 0x76, 0x65, 0x6e,
+	0x74, 0x2e, 0x55, 0x70, 0x64, 0x61, 0x74, 0x65, 0x45, 0x76, 0x65, 0x6e, 0x74, 0x52, 0x65, 0x73,
+	0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22, 0x00, 0x12, 0x46, 0x0a, 0x0b, 0x52, 0x65, 0x6d, 0x6f, 0x76,
+	0x65, 0x45, 0x76, 0x65, 0x6e, 0x74, 0x12, 0x19, 0x2e, 0x65, 0x76, 0x65, 0x6e, 0x74, 0x2e, 0x52,
+	0x65, 0x6d, 0x6f, 0x76, 0x65, 0x45, 0x76, 0x65, 0x6e, 0x74, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73,
+	0x74, 0x1a, 0x1a, 0x2e, 0x65, 0x76, 0x65, 0x6e, 0x74, 0x2e, 0x52, 0x65, 0x6d, 0x6f, 0x76, 0x65,
+	0x45, 0x76, 0x65, 0x6e, 0x74, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22, 0x00, 0x12,
+	0x58, 0x0a, 0x11, 0x47, 0x65, 0x74, 0x44, 0x61, 0x79, 0x41, 0x68, 0x65, 0x61, 0x64, 0x45, 0x76,
+	0x65, 0x6e, 0x74, 0x73, 0x12, 0x1f, 0x2e, 0x65, 0x76, 0x65, 0x6e, 0x74, 0x2e, 0x47, 0x65, 0x74,
+	0x44, 0x61, 0x79, 0x41, 0x68, 0x65, 0x61, 0x64, 0x45, 0x76, 0x65, 0x6e, 0x74, 0x73, 0x52, 0x65,
+	0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x20, 0x2e, 0x65, 0x76, 0x65, 0x6e, 0x74, 0x2e, 0x47, 0x65,
+	0x74, 0x44, 0x61, 0x79, 0x41, 0x68, 0x65, 0x61, 0x64, 0x45, 0x76, 0x65, 0x6e, 0x74, 0x73, 0x52,
+	0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22, 0x00, 0x12, 0x5b, 0x0a, 0x12, 0x47, 0x65, 0x74,
+	0x57, 0x65, 0x65, 0x6b, 0x41, 0x68, 0x65, 0x61, 0x64, 0x45, 0x76, 0x65, 0x6e, 0x74, 0x73, 0x12,
+	0x20, 0x2e, 0x65, 0x76, 0x65, 0x6e, 0x74, 0x2e, 0x47, 0x65, 0x74, 0x57, 0x65, 0x65, 0x6b, 0x41,
+	0x68, 0x65, 0x61, 0x64, 0x45, 0x76, 0x65, 0x6e, 0x74, 0x73, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73,
+	0x74, 0x1a, 0x21, 0x2e, 0x65, 0x76, 0x65, 0x6e, 0x74, 0x2e, 0x47, 0x65, 0x74, 0x57, 0x65, 0x65,
+	0x6b, 0x41, 0x68, 0x65, 0x61, 0x64, 0x45, 0x76, 0x65, 0x6e, 0x74, 0x73, 0x52, 0x65, 0x73, 0x70,
+	0x6f, 0x6e, 0x73, 0x65, 0x22, 0x00, 0x12, 0x5e, 0x0a, 0x13, 0x47, 0x65, 0x74, 0x4d, 0x6f, 0x6e,
+	0x74, 0x68, 0x41, 0x68, 0x65, 0x61, 0x64, 0x45, 0x76, 0x65, 0x6e, 0x74, 0x73, 0x12, 0x21, 0x2e,
+	0x65, 0x76, 0x65, 0x6e, 0x74, 0x2e, 0x47, 0x65, 0x74, 0x4d, 0x6f, 0x6e, 0x74, 0x68, 0x41, 0x68,
+	0x65, 0x61, 0x64, 0x45, 0x76, 0x65, 0x6e, 0x74, 0x73, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74,
+	0x1a, 0x22, 0x2e, 0x65, 0x76, 0x65, 0x6e, 0x74, 0x2e, 0x47, 0x65, 0x74, 0x4d, 0x6f, 0x6e, 0x74,
+	0x68, 0x41, 0x68, 0x65, 0x61, 0x64, 0x45, 0x76, 0x65, 0x6e, 0x74, 0x73, 0x52, 0x65, 0x73, 0x70,
+	0x6f, 0x6e, 0x73, 0x65, 0x22, 0x00, 0x42, 0x0c, 0x5a, 0x0a, 0x2e, 0x2f, 0x3b, 0x65, 0x76, 0x65,
+	0x6e, 0x74, 0x70, 0x62, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
 }
 
 var (
@@ -295,32 +734,47 @@ func file_api_EventService_proto_rawDescGZIP() []byte {
 	return file_api_EventService_proto_rawDescData
 }
 
-var file_api_EventService_proto_msgTypes = make([]protoimpl.MessageInfo, 4)
+var file_api_EventService_proto_msgTypes = make([]protoimpl.MessageInfo, 13)
 var file_api_EventService_proto_goTypes = []interface{}{
-	(*Event)(nil),   // 0: event.Event
-	(*Message)(nil), // 1: event.Message
-	(*Events)(nil),  // 2: event.Events
-	(*Empty)(nil),   // 3: event.Empty
+	(*Event)(nil),                       // 0: event.Event
+	(*CreateEventRequest)(nil),          // 1: event.CreateEventRequest
+	(*CreateEventResponse)(nil),         // 2: event.CreateEventResponse
+	(*UpdateEventRequest)(nil),          // 3: event.UpdateEventRequest
+	(*UpdateEventResponse)(nil),         // 4: event.UpdateEventResponse
+	(*RemoveEventRequest)(nil),          // 5: event.RemoveEventRequest
+	(*RemoveEventResponse)(nil),         // 6: event.RemoveEventResponse
+	(*GetDayAheadEventsRequest)(nil),    // 7: event.GetDayAheadEventsRequest
+	(*GetDayAheadEventsResponse)(nil),   // 8: event.GetDayAheadEventsResponse
+	(*GetWeekAheadEventsRequest)(nil),   // 9: event.GetWeekAheadEventsRequest
+	(*GetWeekAheadEventsResponse)(nil),  // 10: event.GetWeekAheadEventsResponse
+	(*GetMonthAheadEventsRequest)(nil),  // 11: event.GetMonthAheadEventsRequest
+	(*GetMonthAheadEventsResponse)(nil), // 12: event.GetMonthAheadEventsResponse
 }
 var file_api_EventService_proto_depIdxs = []int32{
-	0, // 0: event.Events.items:type_name -> event.Event
-	0, // 1: event.Calendar.CreateEvent:input_type -> event.Event
-	0, // 2: event.Calendar.UpdateEvent:input_type -> event.Event
-	0, // 3: event.Calendar.RemoveEvent:input_type -> event.Event
-	3, // 4: event.Calendar.GetDayAheadEvents:input_type -> event.Empty
-	3, // 5: event.Calendar.GetWeekAheadEvents:input_type -> event.Empty
-	3, // 6: event.Calendar.GetMonthAheadEvents:input_type -> event.Empty
-	0, // 7: event.Calendar.CreateEvent:output_type -> event.Event
-	0, // 8: event.Calendar.UpdateEvent:output_type -> event.Event
-	1, // 9: event.Calendar.RemoveEvent:output_type -> event.Message
-	2, // 10: event.Calendar.GetDayAheadEvents:output_type -> event.Events
-	2, // 11: event.Calendar.GetWeekAheadEvents:output_type -> event.Events
-	2, // 12: event.Calendar.GetMonthAheadEvents:output_type -> event.Events
-	7, // [7:13] is the sub-list for method output_type
-	1, // [1:7] is the sub-list for method input_type
-	1, // [1:1] is the sub-list for extension type_name
-	1, // [1:1] is the sub-list for extension extendee
-	0, // [0:1] is the sub-list for field type_name
+	0,  // 0: event.CreateEventRequest.event:type_name -> event.Event
+	0,  // 1: event.CreateEventResponse.event:type_name -> event.Event
+	0,  // 2: event.UpdateEventRequest.event:type_name -> event.Event
+	0,  // 3: event.UpdateEventResponse.event:type_name -> event.Event
+	0,  // 4: event.GetDayAheadEventsResponse.items:type_name -> event.Event
+	0,  // 5: event.GetWeekAheadEventsResponse.items:type_name -> event.Event
+	0,  // 6: event.GetMonthAheadEventsResponse.items:type_name -> event.Event
+	1,  // 7: event.Calendar.CreateEvent:input_type -> event.CreateEventRequest
+	3,  // 8: event.Calendar.UpdateEvent:input_type -> event.UpdateEventRequest
+	5,  // 9: event.Calendar.RemoveEvent:input_type -> event.RemoveEventRequest
+	7,  // 10: event.Calendar.GetDayAheadEvents:input_type -> event.GetDayAheadEventsRequest
+	9,  // 11: event.Calendar.GetWeekAheadEvents:input_type -> event.GetWeekAheadEventsRequest
+	11, // 12: event.Calendar.GetMonthAheadEvents:input_type -> event.GetMonthAheadEventsRequest
+	2,  // 13: event.Calendar.CreateEvent:output_type -> event.CreateEventResponse
+	4,  // 14: event.Calendar.UpdateEvent:output_type -> event.UpdateEventResponse
+	6,  // 15: event.Calendar.RemoveEvent:output_type -> event.RemoveEventResponse
+	8,  // 16: event.Calendar.GetDayAheadEvents:output_type -> event.GetDayAheadEventsResponse
+	10, // 17: event.Calendar.GetWeekAheadEvents:output_type -> event.GetWeekAheadEventsResponse
+	12, // 18: event.Calendar.GetMonthAheadEvents:output_type -> event.GetMonthAheadEventsResponse
+	13, // [13:19] is the sub-list for method output_type
+	7,  // [7:13] is the sub-list for method input_type
+	7,  // [7:7] is the sub-list for extension type_name
+	7,  // [7:7] is the sub-list for extension extendee
+	0,  // [0:7] is the sub-list for field type_name
 }
 
 func init() { file_api_EventService_proto_init() }
@@ -342,7 +796,7 @@ func file_api_EventService_proto_init() {
 			}
 		}
 		file_api_EventService_proto_msgTypes[1].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*Message); i {
+			switch v := v.(*CreateEventRequest); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -354,7 +808,7 @@ func file_api_EventService_proto_init() {
 			}
 		}
 		file_api_EventService_proto_msgTypes[2].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*Events); i {
+			switch v := v.(*CreateEventResponse); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -366,7 +820,115 @@ func file_api_EventService_proto_init() {
 			}
 		}
 		file_api_EventService_proto_msgTypes[3].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*Empty); i {
+			switch v := v.(*UpdateEventRequest); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_api_EventService_proto_msgTypes[4].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*UpdateEventResponse); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_api_EventService_proto_msgTypes[5].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*RemoveEventRequest); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_api_EventService_proto_msgTypes[6].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*RemoveEventResponse); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_api_EventService_proto_msgTypes[7].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*GetDayAheadEventsRequest); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_api_EventService_proto_msgTypes[8].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*GetDayAheadEventsResponse); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_api_EventService_proto_msgTypes[9].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*GetWeekAheadEventsRequest); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_api_EventService_proto_msgTypes[10].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*GetWeekAheadEventsResponse); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_api_EventService_proto_msgTypes[11].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*GetMonthAheadEventsRequest); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_api_EventService_proto_msgTypes[12].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*GetMonthAheadEventsResponse); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -384,7 +946,7 @@ func file_api_EventService_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: file_api_EventService_proto_rawDesc,
 			NumEnums:      0,
-			NumMessages:   4,
+			NumMessages:   13,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

@@ -12,21 +12,51 @@ message Event {
   int64 owner_id = 6;
 }
 
-message Message {
-  string message = 1;
+message CreateEventRequest {
+  Event event = 1;
 }
 
-message Events {
+message CreateEventResponse {
+  Event event = 1;
+}
+
+message UpdateEventRequest {
+  Event event = 1;
+}
+
+message UpdateEventResponse {
+  Event event = 1;
+}
+
+message RemoveEventRequest {
+  int64 id = 1;
+}
+
+message RemoveEventResponse {}
+
+message GetDayAheadEventsRequest {}
+
+message GetDayAheadEventsResponse {
   repeated Event items = 1;
 }
 
-message Empty {}
+message GetWeekAheadEventsRequest {}
+
+message GetWeekAheadEventsResponse {
+  repeated Event items = 1;
+}
+
+message GetMonthAheadEventsRequest {}
+
+message GetMonthAheadEventsResponse {
+  repeated Event items = 1;
+}
 
 service Calendar {
-  rpc CreateEvent(Event) returns (Event) {}
-  rpc UpdateEvent(Event) returns (Event) {}
-  rpc RemoveEvent(Event) returns (Message) {}
-  rpc GetDayAheadEvents(Empty) returns (Events) {}
-  rpc GetWeekAheadEvents(Empty) returns (Events) {}
-  rpc GetMonthAheadEvents(Empty) returns (Events) {}
+  rpc CreateEvent(CreateEventRequest) returns (CreateEventResponse) {}
+  rpc UpdateEvent(UpdateEventRequest) returns (UpdateEventResponse) {}
+  rpc RemoveEvent(RemoveEventRequest) returns (RemoveEventResponse) {}
+  rpc GetDayAheadEvents(GetDayAheadEventsRequest) returns (GetDayAheadEventsResponse) {}
+  rpc GetWeekAheadEvents(GetWeekAheadEventsRequest) returns (GetWeekAheadEventsResponse) {}
+  rpc GetMonthAheadEvents(GetMonthAheadEventsRequest) returns (GetMonthAheadEventsResponse) {}
 }

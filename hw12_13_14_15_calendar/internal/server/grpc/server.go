@@ -56,21 +56,21 @@ type Service struct {
 }
 
 // CreateEvent handles creating a new event via grpc.
-func (s *Service) CreateEvent(ctx context.Context, requestEvent *pb.Event) (*pb.Event, error) {
+func (s *Service) CreateEvent(ctx context.Context, createEventRequest *pb.CreateEventRequest) (*pb.CreateEventResponse, error) {
 	event := storage.Event{}
 
-	event.Title = requestEvent.Title
-	event.Description = requestEvent.Description
-	event.OwnerID = requestEvent.OwnerId
+	event.Title = createEventRequest.Event.Title
+	event.Description = createEventRequest.Event.Description
+	event.OwnerID = createEventRequest.Event.OwnerId
 
-	if beginDate, err := time.Parse(EventDateFormat, requestEvent.BeginDate); err != nil {
+	if beginDate, err := time.Parse(EventDateFormat, createEventRequest.Event.BeginDate); err != nil {
 		event.BeginDate = time.Now()
 		s.logger.Error(err.Error())
 	} else {
 		event.BeginDate = beginDate
 	}
 
-	if endDate, err := time.Parse(EventDateFormat, requestEvent.EndDate); err != nil {
+	if endDate, err := time.Parse(EventDateFormat, createEventRequest.Event.EndDate); err != nil {
 		event.EndDate = time.Now()
 		s.logger.Error(err.Error())
 	} else {
@@ -82,33 +82,35 @@ func (s *Service) CreateEvent(ctx context.Context, requestEvent *pb.Event) (*pb.
 		s.logger.Error(err.Error())
 	}
 
-	return &pb.Event{
-		Id:          event.ID,
-		Title:       event.Title,
-		BeginDate:   event.BeginDate.Format(EventDateFormat),
-		EndDate:     event.EndDate.Format(EventDateFormat),
-		Description: event.Description,
-		OwnerId:     event.OwnerID,
+	return &pb.CreateEventResponse{
+		Event: &pb.Event{
+			Id:          event.ID,
+			Title:       event.Title,
+			BeginDate:   event.BeginDate.Format(EventDateFormat),
+			EndDate:     event.EndDate.Format(EventDateFormat),
+			Description: event.Description,
+			OwnerId:     event.OwnerID,
+		},
 	}, nil
 }
 
 // UpdateEvent handles updating given event via grpc.
-func (s *Service) UpdateEvent(ctx context.Context, requestEvent *pb.Event) (*pb.Event, error) {
+func (s *Service) UpdateEvent(ctx context.Context, updateEventRequest *pb.UpdateEventRequest) (*pb.UpdateEventResponse, error) {
 	event := storage.Event{}
 
-	event.ID = requestEvent.Id
-	event.Title = requestEvent.Title
-	event.Description = requestEvent.Description
-	event.OwnerID = requestEvent.OwnerId
+	event.ID = updateEventRequest.Event.Id
+	event.Title = updateEventRequest.Event.Title
+	event.Description = updateEventRequest.Event.Description
+	event.OwnerID = updateEventRequest.Event.OwnerId
 
-	if beginDate, err := time.Parse(EventDateFormat, requestEvent.BeginDate); err != nil {
+	if beginDate, err := time.Parse(EventDateFormat, updateEventRequest.Event.BeginDate); err != nil {
 		event.BeginDate = time.Now()
 		s.logger.Error(err.Error())
 	} else {
 		event.BeginDate = beginDate
 	}
 
-	if endDate, err := time.Parse(EventDateFormat, requestEvent.EndDate); err != nil {
+	if endDate, err := time.Parse(EventDateFormat, updateEventRequest.Event.EndDate); err != nil {
 		event.EndDate = time.Now()
 		s.logger.Error(err.Error())
 	} else {
@@ -120,39 +122,39 @@ func (s *Service) UpdateEvent(ctx context.Context, requestEvent *pb.Event) (*pb.
 		s.logger.Error(err.Error())
 	}
 
-	return &pb.Event{
-		Id:          event.ID,
-		Title:       event.Title,
-		BeginDate:   event.BeginDate.Format(EventDateFormat),
-		EndDate:     event.EndDate.Format(EventDateFormat),
-		Description: event.Description,
-		OwnerId:     event.OwnerID,
+	return &pb.UpdateEventResponse{
+		Event: &pb.Event{
+			Id:          event.ID,
+			Title:       event.Title,
+			BeginDate:   event.BeginDate.Format(EventDateFormat),
+			EndDate:     event.EndDate.Format(EventDateFormat),
+			Description: event.Description,
+			OwnerId:     event.OwnerID,
+		},
 	}, nil
 }
 
 // RemoveEvent handles removing an event via grpc.
-func (s *Service) RemoveEvent(ctx context.Context, requestEvent *pb.Event) (*pb.Message, error) {
+func (s *Service) RemoveEvent(ctx context.Context, removeEventRequest *pb.RemoveEventRequest) (*pb.RemoveEventResponse, error) {
 	event := storage.Event{}
-	event.ID = requestEvent.Id
+	event.ID = removeEventRequest.Id
 
 	err := s.app.RemoveEvent(ctx, event)
 	if err != nil {
-		return &pb.Message{}, err
+		return &pb.RemoveEventResponse{}, err
 	}
 
-	return &pb.Message{
-		Message: fmt.Sprintf("Event %d has been successfully removed", event.ID),
-	}, nil
+	return &pb.RemoveEventResponse{}, nil
 }
 
 // GetDayAheadEvents handles getting daily events via grpc.
-func (s *Service) GetDayAheadEvents(ctx context.Context, requestEvent *pb.Empty) (*pb.Events, error) {
+func (s *Service) GetDayAheadEvents(ctx context.Context, _ *pb.GetDayAheadEventsRequest) (*pb.GetDayAheadEventsResponse, error) {
 	events, err := s.app.GetDayAheadEvents(ctx)
 	if err != nil {
-		return &pb.Events{}, err
+		return &pb.GetDayAheadEventsResponse{}, err
 	}
 
-	pbEvents := &pb.Events{}
+	pbEvents := &pb.GetDayAheadEventsResponse{}
 	pbEvents.Items = make([]*pb.Event, len(events))
 
 	for i, event := range events {
@@ -170,13 +172,13 @@ func (s *Service) GetDayAheadEvents(ctx context.Context, requestEvent *pb.Empty)
 }
 
 // GetWeekAheadEvents handles getting weekly events via grpc.
-func (s *Service) GetWeekAheadEvents(ctx context.Context, requestEvent *pb.Empty) (*pb.Events, error) {
+func (s *Service) GetWeekAheadEvents(ctx context.Context, _ *pb.GetWeekAheadEventsRequest) (*pb.GetWeekAheadEventsResponse, error) {
 	events, err := s.app.GetWeekAheadEvents(ctx)
 	if err != nil {
-		return &pb.Events{}, err
+		return &pb.GetWeekAheadEventsResponse{}, err
 	}
 
-	pbEvents := &pb.Events{}
+	pbEvents := &pb.GetWeekAheadEventsResponse{}
 	pbEvents.Items = make([]*pb.Event, len(events))
 
 	for i, event := range events {
@@ -194,13 +196,13 @@ func (s *Service) GetWeekAheadEvents(ctx context.Context, requestEvent *pb.Empty
 }
 
 // GetMonthAheadEvents handles getting monthly events via grpc.
-func (s *Service) GetMonthAheadEvents(ctx context.Context, requestEvent *pb.Empty) (*pb.Events, error) {
+func (s *Service) GetMonthAheadEvents(ctx context.Context, _ *pb.GetMonthAheadEventsRequest) (*pb.GetMonthAheadEventsResponse, error) {
 	events, err := s.app.GetMonthAheadEvents(ctx)
 	if err != nil {
-		return &pb.Events{}, err
+		return &pb.GetMonthAheadEventsResponse{}, err
 	}
 
-	pbEvents := &pb.Events{}
+	pbEvents := &pb.GetMonthAheadEventsResponse{}
 	pbEvents.Items = make([]*pb.Event, len(events))
 
 	for i, event := range events {

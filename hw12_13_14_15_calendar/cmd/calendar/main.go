@@ -101,7 +101,6 @@ func main() {
 		if err := grpcServer.Start(); err != nil {
 			logger.Error(err.Error())
 			cancel()
-			os.Exit(1)
 		}
 	}()
 

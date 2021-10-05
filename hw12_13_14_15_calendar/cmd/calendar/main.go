@@ -4,7 +4,6 @@ import (
 	"context"
 	"flag"
 	"log"
-	"os"
 	"os/signal"
 	"sync"
 	"syscall"
@@ -42,15 +41,14 @@ func main() {
 	// Logger initialization.
 	logger := internallogger.New(config)
 
-	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
+	mainCtx, mainCancel := context.WithCancel(context.Background())
+	defer mainCancel()
 
 	// Storage initialization.
-	storage, err := factorystorage.GetStorage(ctx, config)
+	storage, err := factorystorage.GetStorage(mainCtx, config)
 	if err != nil {
 		logger.Error(err.Error())
-		cancel()
-		os.Exit(1) //nolint:gocritic
+		mainCancel()
 	}
 
 	// Application initialization.
@@ -68,25 +66,26 @@ func main() {
 	go func() {
 		defer wg.Done()
 
-		signalNotifyCtx, stop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGHUP)
-		defer stop()
+		signalNotifyCtx, signalNotifyStop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGHUP)
+		defer signalNotifyStop()
 
-		// Locking until OS signal is sent or context cancel func is called.
+		// Locking until OS signal is sent or context mainCancel func is called.
 		select {
-		case <-ctx.Done():
+		case <-mainCtx.Done():
 			return
 		case <-signalNotifyCtx.Done():
 		}
 
-		cancel()
+		mainCancel()
 
-		ctx, cancel := context.WithTimeout(context.Background(), time.Second*3)
-		defer cancel()
-
-		if err := httpServer.Stop(ctx); err != nil {
+		// Stopping http server.
+		stopHTTPCtx, stopHTTPCancel := context.WithTimeout(context.Background(), time.Second*3)
+		defer stopHTTPCancel()
+		if err := httpServer.Stop(stopHTTPCtx); err != nil {
 			logger.Error(err.Error())
 		}
 
+		// Stopping grpc server.
 		grpcServer.Stop()
 	}()
 
@@ -99,7 +98,7 @@ func main() {
 		// Locking over here until server is stopped.
 		if err := grpcServer.Start(); err != nil {
 			logger.Error(err.Error())
-			cancel()
+			mainCancel()
 		}
 	}()
 
@@ -112,8 +111,7 @@ func main() {
 		// Locking over here until server is stopped.
 		if err := httpServer.Start(); err != nil {
 			logger.Error(err.Error())
-			cancel()
-			os.Exit(1)
+			mainCancel()
 		}
 	}()
 

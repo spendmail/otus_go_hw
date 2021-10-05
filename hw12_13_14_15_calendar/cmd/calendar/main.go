@@ -41,14 +41,14 @@ func main() {
 	// Logger initialization.
 	logger := internallogger.New(config)
 
-	mainCtx, mainCancel := context.WithCancel(context.Background())
-	defer mainCancel()
+	ctx, cancel := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGHUP)
+	defer cancel()
 
 	// Storage initialization.
-	storage, err := factorystorage.GetStorage(mainCtx, config)
+	storage, err := factorystorage.GetStorage(ctx, config)
 	if err != nil {
 		logger.Error(err.Error())
-		mainCancel()
+		cancel()
 	}
 
 	// Application initialization.
@@ -66,17 +66,9 @@ func main() {
 	go func() {
 		defer wg.Done()
 
-		signalNotifyCtx, signalNotifyStop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGHUP)
-		defer signalNotifyStop()
-
-		// Locking until OS signal is sent or context mainCancel func is called.
-		select {
-		case <-mainCtx.Done():
-			return
-		case <-signalNotifyCtx.Done():
-		}
-
-		mainCancel()
+		// Locking until OS signal is sent or context cancel func is called.
+		<-ctx.Done()
+		cancel()
 
 		// Stopping http server.
 		stopHTTPCtx, stopHTTPCancel := context.WithTimeout(context.Background(), time.Second*3)
@@ -98,7 +90,7 @@ func main() {
 		// Locking over here until server is stopped.
 		if err := grpcServer.Start(); err != nil {
 			logger.Error(err.Error())
-			mainCancel()
+			cancel()
 		}
 	}()
 
@@ -111,7 +103,7 @@ func main() {
 		// Locking over here until server is stopped.
 		if err := httpServer.Start(); err != nil {
 			logger.Error(err.Error())
-			mainCancel()
+			cancel()
 		}
 	}()
 

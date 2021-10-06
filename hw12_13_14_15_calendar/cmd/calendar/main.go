@@ -68,7 +68,6 @@ func main() {
 
 		// Locking until OS signal is sent or context cancel func is called.
 		<-ctx.Done()
-		cancel()
 
 		// Stopping http server.
 		stopHTTPCtx, stopHTTPCancel := context.WithTimeout(context.Background(), time.Second*3)

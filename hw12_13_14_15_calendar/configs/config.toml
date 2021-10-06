@@ -1,5 +1,20 @@
 [logger]
-level = "INFO"
+#    available levels: debug, info, warn, error
+    level = "debug"
+    file = "/tmp/prod.log"
+    size = 500
+    backups = 3
+    age = 30
 
-# TODO
-# ...
+[storage]
+implementation = "sql"
+# implementation = "memory"
+dsn = "pgsql://calendar:calendar@localhost:5432/calendar?sslmode=disable"
+
+[http]
+host = "127.0.0.1"
+port = 8080
+
+[grpc]
+host = "127.0.0.1"
+port = 50051

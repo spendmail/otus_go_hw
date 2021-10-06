@@ -3,21 +3,25 @@ package main
 import (
 	"context"
 	"flag"
-	"os"
+	"log"
 	"os/signal"
+	"sync"
 	"syscall"
 	"time"
 
-	"github.com/fixme_my_friend/hw12_13_14_15_calendar/internal/app"
-	"github.com/fixme_my_friend/hw12_13_14_15_calendar/internal/logger"
-	internalhttp "github.com/fixme_my_friend/hw12_13_14_15_calendar/internal/server/http"
-	memorystorage "github.com/fixme_my_friend/hw12_13_14_15_calendar/internal/storage/memory"
+	_ "github.com/jackc/pgx/stdlib"
+	"github.com/spendmail/otus_go_hw/hw12_13_14_15_calendar/internal/app"
+	internalconfig "github.com/spendmail/otus_go_hw/hw12_13_14_15_calendar/internal/config"
+	internallogger "github.com/spendmail/otus_go_hw/hw12_13_14_15_calendar/internal/logger"
+	internalgrpc "github.com/spendmail/otus_go_hw/hw12_13_14_15_calendar/internal/server/grpc"
+	internalhttp "github.com/spendmail/otus_go_hw/hw12_13_14_15_calendar/internal/server/http"
+	factorystorage "github.com/spendmail/otus_go_hw/hw12_13_14_15_calendar/internal/storage/factory"
 )
 
-var configFile string
+var configPath string
 
 func init() {
-	flag.StringVar(&configFile, "config", "/etc/calendar/config.toml", "Path to configuration file")
+	flag.StringVar(&configPath, "config", "/etc/calendar/config.toml", "Path to configuration file")
 }
 
 func main() {
@@ -28,42 +32,81 @@ func main() {
 		return
 	}
 
-	config := NewConfig()
-	logg := logger.New(config.Logger.Level)
+	// Config initialization.
+	config, err := internalconfig.NewConfig(configPath)
+	if err != nil {
+		log.Fatal(err)
+	}
 
-	storage := memorystorage.New()
-	calendar := app.New(logg, storage)
+	// Logger initialization.
+	logger := internallogger.New(config)
 
-	server := internalhttp.NewServer(calendar)
-	ctx, cancel := context.WithCancel(context.Background())
+	ctx, cancel := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGHUP)
 	defer cancel()
 
-	go func() {
-		signals := make(chan os.Signal, 1)
-		signal.Notify(signals, syscall.SIGINT, syscall.SIGHUP)
+	// Storage initialization.
+	storage, err := factorystorage.GetStorage(ctx, config)
+	if err != nil {
+		logger.Error(err.Error())
+		cancel()
+	}
 
-		select {
-		case <-ctx.Done():
-			return
-		case <-signals:
+	// Application initialization.
+	calendar := app.New(logger, storage)
+
+	// HTTP Server initialization.
+	httpServer := internalhttp.NewServer(config, calendar, logger)
+
+	// GRPC Server initialization.
+	grpcServer := internalgrpc.NewServer(config, calendar, logger)
+
+	var wg sync.WaitGroup
+
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+
+		// Locking until OS signal is sent or context cancel func is called.
+		<-ctx.Done()
+
+		// Stopping http server.
+		stopHTTPCtx, stopHTTPCancel := context.WithTimeout(context.Background(), time.Second*3)
+		defer stopHTTPCancel()
+		if err := httpServer.Stop(stopHTTPCtx); err != nil {
+			logger.Error(err.Error())
 		}
 
-		signal.Stop(signals)
-		cancel()
+		// Stopping grpc server.
+		grpcServer.Stop()
+	}()
 
-		ctx, cancel := context.WithTimeout(context.Background(), time.Second*3)
-		defer cancel()
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
 
-		if err := server.Stop(ctx); err != nil {
-			logg.Error("failed to stop http server: " + err.Error())
+		logger.Info("starting grpc server...")
+
+		// Locking over here until server is stopped.
+		if err := grpcServer.Start(); err != nil {
+			logger.Error(err.Error())
+			cancel()
 		}
 	}()
 
-	logg.Info("calendar is running...")
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
 
-	if err := server.Start(ctx); err != nil {
-		logg.Error("failed to start http server: " + err.Error())
-		cancel()
-		os.Exit(1) //nolint:gocritic
-	}
+		logger.Info("starting http server...")
+
+		// Locking over here until server is stopped.
+		if err := httpServer.Start(); err != nil {
+			logger.Error(err.Error())
+			cancel()
+		}
+	}()
+
+	logger.Info("calendar is running...")
+
+	wg.Wait()
 }

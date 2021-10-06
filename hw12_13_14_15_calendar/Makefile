@@ -31,4 +31,11 @@ install-lint-deps:
 lint: install-lint-deps
 	golangci-lint run ./...
 
+migrate:
+	(which goose > /dev/null) || go get -u github.com/pressly/goose/cmd/goose
+	goose -dir migrations postgres "user=calendar password=calendar dbname=calendar sslmode=disable" up
+
+generate:
+	go generate ./...
+
 .PHONY: build run build-img run-img version test lint

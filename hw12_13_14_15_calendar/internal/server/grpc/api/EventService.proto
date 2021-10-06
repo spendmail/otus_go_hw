@@ -1,0 +1,62 @@
+syntax = "proto3";
+
+package event;
+option go_package = "./;eventpb";
+
+message Event {
+  int64 id = 1;
+  string title = 2;
+  string begin_date = 3;
+  string end_date = 4;
+  string description = 5;
+  int64 owner_id = 6;
+}
+
+message CreateEventRequest {
+  Event event = 1;
+}
+
+message CreateEventResponse {
+  Event event = 1;
+}
+
+message UpdateEventRequest {
+  Event event = 1;
+}
+
+message UpdateEventResponse {
+  Event event = 1;
+}
+
+message RemoveEventRequest {
+  int64 id = 1;
+}
+
+message RemoveEventResponse {}
+
+message GetDayAheadEventsRequest {}
+
+message GetDayAheadEventsResponse {
+  repeated Event items = 1;
+}
+
+message GetWeekAheadEventsRequest {}
+
+message GetWeekAheadEventsResponse {
+  repeated Event items = 1;
+}
+
+message GetMonthAheadEventsRequest {}
+
+message GetMonthAheadEventsResponse {
+  repeated Event items = 1;
+}
+
+service Calendar {
+  rpc CreateEvent(CreateEventRequest) returns (CreateEventResponse) {}
+  rpc UpdateEvent(UpdateEventRequest) returns (UpdateEventResponse) {}
+  rpc RemoveEvent(RemoveEventRequest) returns (RemoveEventResponse) {}
+  rpc GetDayAheadEvents(GetDayAheadEventsRequest) returns (GetDayAheadEventsResponse) {}
+  rpc GetWeekAheadEvents(GetWeekAheadEventsRequest) returns (GetWeekAheadEventsResponse) {}
+  rpc GetMonthAheadEvents(GetMonthAheadEventsRequest) returns (GetMonthAheadEventsResponse) {}
+}

@@ -1,0 +1,12 @@
+[logger]
+#    available levels: debug, info, warn, error
+    level = "debug"
+    file = "/tmp/calendar_sender.log"
+    size = 500
+    backups = 3
+    age = 30
+
+[storage]
+implementation = "sql"
+# implementation = "memory"
+dsn = "pgsql://calendar:calendar@localhost:5432/calendar?sslmode=disable"

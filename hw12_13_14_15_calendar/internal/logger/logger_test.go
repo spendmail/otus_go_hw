@@ -11,7 +11,7 @@ import (
 
 func TestLogger(t *testing.T) {
 	t.Run("logger", func(t *testing.T) {
-		config, err := internalconfig.NewConfig("../../configs/config.toml")
+		config, err := internalconfig.NewConfig("../../configs/calendar.toml")
 		if err != nil {
 			t.Fatal(err)
 		}

@@ -21,7 +21,7 @@ import (
 var configPath string
 
 func init() {
-	flag.StringVar(&configPath, "config", "/etc/calendar/config.toml", "Path to configuration file")
+	flag.StringVar(&configPath, "config", "/etc/calendar/calendar.toml", "Path to configuration file")
 }
 
 func main() {

@@ -10,6 +10,7 @@ message Event {
   string end_date = 4;
   string description = 5;
   int64 owner_id = 6;
+  bool notification_sent = 7;
 }
 
 message CreateEventRequest {

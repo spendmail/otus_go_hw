@@ -10,3 +10,22 @@
 implementation = "sql"
 # implementation = "memory"
 dsn = "pgsql://calendar:calendar@localhost:5432/calendar?sslmode=disable"
+
+[scheduler]
+remindIn = 1
+
+[rabbitmq]
+dsn = "amqp://guest:guest@localhost:5672/"
+
+[exchange]
+name = "calendar"
+kind = "topic"
+durable = true
+autoDeleted = false
+internal = false
+noWait = false
+
+[publish]
+mandatory = false
+immediate = false
+routingKey = "calendar.notification.info"

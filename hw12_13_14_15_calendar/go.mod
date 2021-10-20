@@ -13,6 +13,7 @@ require (
 	github.com/lib/pq v1.10.2 // indirect
 	github.com/mattn/go-sqlite3 v1.14.8 // indirect
 	github.com/pkg/errors v0.9.1
+	github.com/rabbitmq/amqp091-go v1.1.0
 	github.com/shopspring/decimal v1.2.0 // indirect
 	github.com/spf13/viper v1.8.1
 	github.com/stretchr/testify v1.7.0

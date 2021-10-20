@@ -2,10 +2,13 @@ package main
 
 import (
 	"context"
+	"encoding/json"
 	"flag"
+	"fmt"
 	_ "github.com/jackc/pgx/stdlib"
 	internalconfig "github.com/spendmail/otus_go_hw/hw12_13_14_15_calendar/internal/config"
 	internallogger "github.com/spendmail/otus_go_hw/hw12_13_14_15_calendar/internal/logger"
+	internalrabbitmq "github.com/spendmail/otus_go_hw/hw12_13_14_15_calendar/internal/rabbitmq"
 	"log"
 	"os/signal"
 	"syscall"
@@ -37,7 +40,48 @@ func main() {
 	ctx, cancel := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGHUP)
 	defer cancel()
 
-	logger.Info("sender is running...")
+	rabbitClient, err := internalrabbitmq.NewClient(config, logger)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	err = rabbitClient.DeclareExchange()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	queue, err := rabbitClient.DeclareQueue()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	err = rabbitClient.BindQueue(queue)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	messages, err := rabbitClient.Consume(queue)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	go func() {
+		for d := range messages {
+			notification := internalrabbitmq.Notification{}
+			err := json.Unmarshal(d.Body, &notification)
+			if err != nil {
+				logger.Error(err.Error())
+			} else {
+				SendNotification(notification)
+			}
+		}
+	}()
+
+	logger.Info("calendar sender is running...")
 
 	<-ctx.Done()
+}
+
+func SendNotification(notification internalrabbitmq.Notification) {
+	fmt.Printf("Notification %v has been successfully sent\n", notification)
 }

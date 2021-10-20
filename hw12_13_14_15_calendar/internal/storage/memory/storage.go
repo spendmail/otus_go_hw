@@ -117,3 +117,21 @@ func (s *Storage) GetMonthAheadEvents(ctx context.Context) ([]storage.Event, err
 
 	return events, nil
 }
+
+// GetComingEvents returns events slice that need to be notified.
+func (s *Storage) GetComingEvents(ctx context.Context) ([]storage.Event, error) {
+	start := time.Now()
+	end := time.Now().Add(24 * 7 * 30 * time.Hour)
+	var events []storage.Event
+
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+
+	for _, event := range s.events {
+		if event.BeginDate.After(start) && event.BeginDate.Before(end) && event.NotificationSent == false {
+			events = append(events, event)
+		}
+	}
+
+	return events, nil
+}

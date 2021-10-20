@@ -36,6 +36,7 @@ type Storage interface {
 	GetDayAheadEvents(ctx context.Context) ([]storage.Event, error)
 	GetWeekAheadEvents(ctx context.Context) ([]storage.Event, error)
 	GetMonthAheadEvents(ctx context.Context) ([]storage.Event, error)
+	GetComingEvents(ctx context.Context) ([]storage.Event, error)
 }
 
 func New(logger Logger, storage Storage) *App {
@@ -92,6 +93,15 @@ func (a *App) GetWeekAheadEvents(ctx context.Context) ([]storage.Event, error) {
 
 func (a *App) GetMonthAheadEvents(ctx context.Context) ([]storage.Event, error) {
 	events, err := a.Storage.GetMonthAheadEvents(ctx)
+	if err != nil {
+		err = fmt.Errorf("%w: %s", ErrGetMonthAheadEvents, err.Error())
+	}
+
+	return events, err
+}
+
+func (a *App) GetComingEvents(ctx context.Context) ([]storage.Event, error) {
+	events, err := a.Storage.GetComingEvents(ctx)
 	if err != nil {
 		err = fmt.Errorf("%w: %s", ErrGetMonthAheadEvents, err.Error())
 	}

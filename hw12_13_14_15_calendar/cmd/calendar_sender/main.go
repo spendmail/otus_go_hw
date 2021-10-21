@@ -47,6 +47,7 @@ func main() {
 		fmt.Println(err)
 		return
 	}
+	defer rabbitClient.Close()
 
 	// RabbitMQ exchange initialization.
 	err = rabbitClient.DeclareExchange()
@@ -93,8 +94,6 @@ func main() {
 	logger.Info("calendar sender is running...")
 
 	<-ctx.Done()
-
-	rabbitClient.Close()
 }
 
 // SendNotification sends notification to a fake recipient.

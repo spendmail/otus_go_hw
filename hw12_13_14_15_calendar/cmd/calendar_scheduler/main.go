@@ -55,6 +55,7 @@ func main() {
 		fmt.Println(err)
 		return
 	}
+	defer rabbitClient.Close()
 
 	// RabbitMQ exchange initialization.
 	err = rabbitClient.DeclareExchange()
@@ -104,6 +105,4 @@ func main() {
 	logger.Info("calendar scheduler is running...")
 
 	<-ctx.Done()
-
-	rabbitClient.Close()
 }

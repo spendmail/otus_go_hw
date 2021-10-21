@@ -128,10 +128,25 @@ func (s *Storage) GetComingEvents(ctx context.Context) ([]storage.Event, error) 
 	defer s.mu.RUnlock()
 
 	for _, event := range s.events {
-		if event.BeginDate.After(start) && event.BeginDate.Before(end) && event.NotificationSent == false {
+		if event.BeginDate.After(start) && event.BeginDate.Before(end) && !event.NotificationSent {
 			events = append(events, event)
 		}
 	}
 
 	return events, nil
+}
+
+// RemoveExpiredEvents removes events that happened more than one year ago.
+func (s *Storage) RemoveExpiredEvents(ctx context.Context) error {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+
+	oneYearAgo := time.Now().AddDate(-1, 0, 0)
+	for _, event := range s.events {
+		if event.EndDate.Before(oneYearAgo) {
+			delete(s.events, event.ID)
+		}
+	}
+
+	return nil
 }

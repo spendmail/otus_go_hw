@@ -224,3 +224,14 @@ func (s *Storage) GetComingEvents(ctx context.Context) ([]storage.Event, error) 
 
 	return events, nil
 }
+
+// RemoveExpiredEvents removes events happened more than one year ago.
+func (s *Storage) RemoveExpiredEvents(ctx context.Context) error {
+	query := "DELETE FROM app_event WHERE end_date < NOW() - interval '1 year'"
+	_, err := s.db.ExecContext(ctx, query)
+	if err != nil {
+		return fmt.Errorf("%w: %v", ErrRemoveEvent, err)
+	}
+
+	return nil
+}

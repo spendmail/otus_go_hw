@@ -7,10 +7,11 @@
 package eventpb
 
 import (
-	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
-	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	reflect "reflect"
 	sync "sync"
+
+	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
+	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 )
 
 const (
@@ -745,22 +746,25 @@ func file_api_EventService_proto_rawDescGZIP() []byte {
 	return file_api_EventService_proto_rawDescData
 }
 
-var file_api_EventService_proto_msgTypes = make([]protoimpl.MessageInfo, 13)
-var file_api_EventService_proto_goTypes = []interface{}{
-	(*Event)(nil),                       // 0: event.Event
-	(*CreateEventRequest)(nil),          // 1: event.CreateEventRequest
-	(*CreateEventResponse)(nil),         // 2: event.CreateEventResponse
-	(*UpdateEventRequest)(nil),          // 3: event.UpdateEventRequest
-	(*UpdateEventResponse)(nil),         // 4: event.UpdateEventResponse
-	(*RemoveEventRequest)(nil),          // 5: event.RemoveEventRequest
-	(*RemoveEventResponse)(nil),         // 6: event.RemoveEventResponse
-	(*GetDayAheadEventsRequest)(nil),    // 7: event.GetDayAheadEventsRequest
-	(*GetDayAheadEventsResponse)(nil),   // 8: event.GetDayAheadEventsResponse
-	(*GetWeekAheadEventsRequest)(nil),   // 9: event.GetWeekAheadEventsRequest
-	(*GetWeekAheadEventsResponse)(nil),  // 10: event.GetWeekAheadEventsResponse
-	(*GetMonthAheadEventsRequest)(nil),  // 11: event.GetMonthAheadEventsRequest
-	(*GetMonthAheadEventsResponse)(nil), // 12: event.GetMonthAheadEventsResponse
-}
+var (
+	file_api_EventService_proto_msgTypes = make([]protoimpl.MessageInfo, 13)
+	file_api_EventService_proto_goTypes  = []interface{}{
+		(*Event)(nil),                       // 0: event.Event
+		(*CreateEventRequest)(nil),          // 1: event.CreateEventRequest
+		(*CreateEventResponse)(nil),         // 2: event.CreateEventResponse
+		(*UpdateEventRequest)(nil),          // 3: event.UpdateEventRequest
+		(*UpdateEventResponse)(nil),         // 4: event.UpdateEventResponse
+		(*RemoveEventRequest)(nil),          // 5: event.RemoveEventRequest
+		(*RemoveEventResponse)(nil),         // 6: event.RemoveEventResponse
+		(*GetDayAheadEventsRequest)(nil),    // 7: event.GetDayAheadEventsRequest
+		(*GetDayAheadEventsResponse)(nil),   // 8: event.GetDayAheadEventsResponse
+		(*GetWeekAheadEventsRequest)(nil),   // 9: event.GetWeekAheadEventsRequest
+		(*GetWeekAheadEventsResponse)(nil),  // 10: event.GetWeekAheadEventsResponse
+		(*GetMonthAheadEventsRequest)(nil),  // 11: event.GetMonthAheadEventsRequest
+		(*GetMonthAheadEventsResponse)(nil), // 12: event.GetMonthAheadEventsResponse
+	}
+)
+
 var file_api_EventService_proto_depIdxs = []int32{
 	0,  // 0: event.CreateEventRequest.event:type_name -> event.Event
 	0,  // 1: event.CreateEventResponse.event:type_name -> event.Event

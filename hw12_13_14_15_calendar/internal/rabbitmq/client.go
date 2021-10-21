@@ -4,9 +4,10 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"time"
+
 	amqp "github.com/rabbitmq/amqp091-go"
 	"github.com/spendmail/otus_go_hw/hw12_13_14_15_calendar/internal/storage"
-	"time"
 )
 
 type Config interface {
@@ -49,7 +50,7 @@ type Client struct {
 }
 
 type Notification struct {
-	Id      int64     `json:"id"`
+	ID      int64     `json:"id"`
 	Title   string    `json:"title"`
 	Date    time.Time `json:"date"`
 	OwnerID int64     `json:"owner_id"`
@@ -68,7 +69,6 @@ var (
 )
 
 func NewClient(config Config, logger Logger) (*Client, error) {
-
 	conn, err := amqp.Dial(config.GetRabbitDSN())
 	if err != nil {
 		return nil, fmt.Errorf("%w: %s", ErrRabbitmqDial, err.Error())
@@ -90,7 +90,6 @@ func NewClient(config Config, logger Logger) (*Client, error) {
 }
 
 func (c *Client) DeclareExchange() error {
-
 	err := c.Channel.ExchangeDeclare(
 		c.Config.GetExchangeName(),
 		c.Config.GetExchangeKind(),
@@ -108,7 +107,6 @@ func (c *Client) DeclareExchange() error {
 }
 
 func (c *Client) DeclareQueue() (amqp.Queue, error) {
-
 	queue, err := c.Channel.QueueDeclare(
 		c.Config.GetQueueName(),
 		c.Config.GetQueueDurable(),
@@ -125,14 +123,12 @@ func (c *Client) DeclareQueue() (amqp.Queue, error) {
 }
 
 func (c *Client) BindQueue(queue amqp.Queue) error {
-
 	err := c.Channel.QueueBind(
 		queue.Name,
 		c.Config.GetQueueBindingKey(),
 		c.Config.GetExchangeName(),
 		c.Config.GetQueueBindNoWait(),
 		nil)
-
 	if err != nil {
 		return fmt.Errorf("%w: %s", ErrRabbitmqQueueBind, err.Error())
 	}
@@ -141,7 +137,6 @@ func (c *Client) BindQueue(queue amqp.Queue) error {
 }
 
 func (c *Client) Consume(queue amqp.Queue) (<-chan amqp.Delivery, error) {
-
 	messages, err := c.Channel.Consume(
 		queue.Name,
 		c.Config.GetConsumeConsumer(),
@@ -151,7 +146,6 @@ func (c *Client) Consume(queue amqp.Queue) (<-chan amqp.Delivery, error) {
 		c.Config.GetConsumeNoWait(),
 		nil,
 	)
-
 	if err != nil {
 		return messages, fmt.Errorf("%w: %s", ErrRabbitmqConsume, err.Error())
 	}
@@ -160,9 +154,8 @@ func (c *Client) Consume(queue amqp.Queue) (<-chan amqp.Delivery, error) {
 }
 
 func (c *Client) SendEventNotification(event storage.Event) error {
-
 	notification := &Notification{
-		Id:      event.ID,
+		ID:      event.ID,
 		Title:   event.Title,
 		Date:    event.BeginDate,
 		OwnerID: event.OwnerID,
@@ -179,7 +172,6 @@ func (c *Client) SendEventNotification(event storage.Event) error {
 			ContentType: "application/json",
 			Body:        jsonBody,
 		})
-
 	if err != nil {
 		return fmt.Errorf("%w: %s", ErrRabbitmqPublish, err.Error())
 	}

@@ -3,15 +3,16 @@ package main
 import (
 	"context"
 	"flag"
+	"fmt"
+	"os/signal"
+	"syscall"
+	"time"
+
 	_ "github.com/jackc/pgx/stdlib"
 	internalconfig "github.com/spendmail/otus_go_hw/hw12_13_14_15_calendar/internal/config"
 	internallogger "github.com/spendmail/otus_go_hw/hw12_13_14_15_calendar/internal/logger"
 	internalrabbitmq "github.com/spendmail/otus_go_hw/hw12_13_14_15_calendar/internal/rabbitmq"
 	factorystorage "github.com/spendmail/otus_go_hw/hw12_13_14_15_calendar/internal/storage/factory"
-	"log"
-	"os/signal"
-	"syscall"
-	"time"
 )
 
 var configPath string
@@ -34,7 +35,8 @@ func main() {
 	// Config initialization.
 	config, err := internalconfig.NewConfig(configPath)
 	if err != nil {
-		log.Fatal(err)
+		fmt.Println(err)
+		return
 	}
 
 	// Logger initialization.
@@ -43,19 +45,22 @@ func main() {
 	// Storage initialization.
 	storage, err := factorystorage.GetStorage(ctx, config)
 	if err != nil {
-		log.Fatal(err)
+		fmt.Println(err)
+		return
 	}
 
 	// RabbitMQ client initialization.
 	rabbitClient, err := internalrabbitmq.NewClient(config, logger)
 	if err != nil {
-		log.Fatal(err)
+		fmt.Println(err)
+		return
 	}
 
 	// RabbitMQ exchange initialization.
 	err = rabbitClient.DeclareExchange()
 	if err != nil {
-		log.Fatal(err)
+		fmt.Println(err)
+		return
 	}
 
 	ticker := time.NewTicker(time.Second)
@@ -69,20 +74,28 @@ func main() {
 				logger.Error(err.Error())
 			}
 
-			if len(events) > 0 {
-				for _, event := range events {
-					// Sending event into a queue broker.
-					err = rabbitClient.SendEventNotification(event)
+			if len(events) == 0 {
+				continue
+			}
+
+			for _, event := range events {
+				// Sending event into a queue broker.
+				err = rabbitClient.SendEventNotification(event)
+				if err != nil {
+					logger.Error(err.Error())
+				} else {
+					// If notification has been successfully sent, setting NotificationSent flag.
+					event.NotificationSent = true
+					event, err = storage.UpdateEvent(ctx, event)
 					if err != nil {
 						logger.Error(err.Error())
-					} else {
-						// If notification has been successfully sent, setting NotificationSent flag.
-						event.NotificationSent = true
-						event, err = storage.UpdateEvent(ctx, event)
-						if err != nil {
-							logger.Error(err.Error())
-						}
 					}
+				}
+
+				// Removing expired events.
+				err = storage.RemoveExpiredEvents(ctx)
+				if err != nil {
+					logger.Error(err.Error())
 				}
 			}
 		}

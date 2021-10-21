@@ -104,4 +104,6 @@ func main() {
 	logger.Info("calendar scheduler is running...")
 
 	<-ctx.Done()
+
+	rabbitClient.Close()
 }

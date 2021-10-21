@@ -93,6 +93,8 @@ func main() {
 	logger.Info("calendar sender is running...")
 
 	<-ctx.Done()
+
+	rabbitClient.Close()
 }
 
 // SendNotification sends notification to a fake recipient.

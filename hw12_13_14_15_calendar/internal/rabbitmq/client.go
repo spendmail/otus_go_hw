@@ -68,6 +68,7 @@ var (
 	ErrRabbitmqChannelClose    = errors.New("unable to to close rabbitmq channel")
 )
 
+// NewClient is a Rabbitmq constructor.
 func NewClient(config Config, logger Logger) (*Client, error) {
 	conn, err := amqp.Dial(config.GetRabbitDSN())
 	if err != nil {
@@ -89,6 +90,7 @@ func NewClient(config Config, logger Logger) (*Client, error) {
 	return client, nil
 }
 
+// DeclareExchange creates Rabbitmq exchange.
 func (c *Client) DeclareExchange() error {
 	err := c.Channel.ExchangeDeclare(
 		c.Config.GetExchangeName(),
@@ -106,6 +108,7 @@ func (c *Client) DeclareExchange() error {
 	return nil
 }
 
+// DeclareQueue creates Rabbitmq queue.
 func (c *Client) DeclareQueue() (amqp.Queue, error) {
 	queue, err := c.Channel.QueueDeclare(
 		c.Config.GetQueueName(),
@@ -122,6 +125,7 @@ func (c *Client) DeclareQueue() (amqp.Queue, error) {
 	return queue, nil
 }
 
+// BindQueue binds Rabbitmq queue with appropriate exchange..
 func (c *Client) BindQueue(queue amqp.Queue) error {
 	err := c.Channel.QueueBind(
 		queue.Name,
@@ -136,6 +140,7 @@ func (c *Client) BindQueue(queue amqp.Queue) error {
 	return nil
 }
 
+// Consume returns channel for receiving messages from the queue.
 func (c *Client) Consume(queue amqp.Queue) (<-chan amqp.Delivery, error) {
 	messages, err := c.Channel.Consume(
 		queue.Name,
@@ -153,6 +158,7 @@ func (c *Client) Consume(queue amqp.Queue) (<-chan amqp.Delivery, error) {
 	return messages, nil
 }
 
+// SendEventNotification marshals Event into a Notification json and sends to broker.
 func (c *Client) SendEventNotification(event storage.Event) error {
 	notification := &Notification{
 		ID:      event.ID,
@@ -179,6 +185,7 @@ func (c *Client) SendEventNotification(event storage.Event) error {
 	return nil
 }
 
+// Close releases Rabbitmq channel and connection.
 func (c *Client) Close() {
 	err := c.Channel.Close()
 	if err != nil {

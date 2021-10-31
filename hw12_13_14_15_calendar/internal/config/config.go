@@ -10,10 +10,16 @@ import (
 var ErrConfigRead = errors.New("unable to read config file")
 
 type Config struct {
-	Logger  LoggerConf
-	HTTP    HTTPConf
-	Storage StorageConf
-	GRPC    GRPCConf
+	Logger    LoggerConf
+	HTTP      HTTPConf
+	Storage   StorageConf
+	GRPC      GRPCConf
+	Rabbitmq  RabbitmqConf
+	Exchange  ExchangeConf
+	Queue     QueueConf
+	Consume   ConsumeConf
+	Publish   PublishConf
+	Scheduler SchedulerConf
 }
 
 type LoggerConf struct {
@@ -37,6 +43,47 @@ type GRPCConf struct {
 type StorageConf struct {
 	Implementation string
 	DSN            string
+}
+
+type RabbitmqConf struct {
+	DSN string
+}
+
+type ExchangeConf struct {
+	Name       string
+	Kind       string
+	Durable    bool
+	AutoDelete bool
+	Internal   bool
+	NoWait     bool
+}
+
+type QueueConf struct {
+	Name       string
+	Durable    bool
+	AutoDelete bool
+	Exclusive  bool
+	NoWait     bool
+	BindNoWait bool
+	BindingKey string
+}
+
+type ConsumeConf struct {
+	Consumer  string
+	AutoAck   bool
+	Exclusive bool
+	NoLocal   bool
+	NoWait    bool
+}
+
+type PublishConf struct {
+	Mandatory  bool
+	Immediate  bool
+	RoutingKey string
+}
+
+type SchedulerConf struct {
+	RemindIn int
 }
 
 func NewConfig(path string) (*Config, error) {
@@ -65,6 +112,41 @@ func NewConfig(path string) (*Config, error) {
 		GRPCConf{
 			viper.GetString("grpc.host"),
 			viper.GetString("grpc.port"),
+		},
+		RabbitmqConf{
+			viper.GetString("rabbitmq.dsn"),
+		},
+		ExchangeConf{
+			viper.GetString("exchange.name"),
+			viper.GetString("exchange.kind"),
+			viper.GetBool("exchange.durable"),
+			viper.GetBool("exchange.autoDelete"),
+			viper.GetBool("exchange.internal"),
+			viper.GetBool("exchange.noWait"),
+		},
+		QueueConf{
+			viper.GetString("queue.name"),
+			viper.GetBool("queue.durable"),
+			viper.GetBool("queue.autoDelete"),
+			viper.GetBool("queue.exclusive"),
+			viper.GetBool("queue.noWait"),
+			viper.GetBool("queue.bindNoWait"),
+			viper.GetString("queue.bindingKey"),
+		},
+		ConsumeConf{
+			viper.GetString("consume.consumer"),
+			viper.GetBool("consume.autoAck"),
+			viper.GetBool("consume.exclusive"),
+			viper.GetBool("consume.noLocal"),
+			viper.GetBool("consume.noWait"),
+		},
+		PublishConf{
+			viper.GetBool("publish.mandatory"),
+			viper.GetBool("publish.immediate"),
+			viper.GetString("publish.routingKey"),
+		},
+		SchedulerConf{
+			viper.GetInt("scheduler.remindIn"),
 		},
 	}, nil
 }
@@ -111,4 +193,96 @@ func (c *Config) GetStorageImplementation() string {
 
 func (c *Config) GetStorageDSN() string {
 	return c.Storage.DSN
+}
+
+func (c *Config) GetRabbitDSN() string {
+	return c.Rabbitmq.DSN
+}
+
+func (c *Config) GetExchangeName() string {
+	return c.Exchange.Name
+}
+
+func (c *Config) GetExchangeKind() string {
+	return c.Exchange.Kind
+}
+
+func (c *Config) GetExchangeDurable() bool {
+	return c.Exchange.Durable
+}
+
+func (c *Config) GetExchangeAutoDelete() bool {
+	return c.Exchange.AutoDelete
+}
+
+func (c *Config) GetExchangeInternal() bool {
+	return c.Exchange.Internal
+}
+
+func (c *Config) GetExchangeNoWait() bool {
+	return c.Exchange.NoWait
+}
+
+func (c *Config) GetQueueName() string {
+	return c.Queue.Name
+}
+
+func (c *Config) GetQueueDurable() bool {
+	return c.Queue.Durable
+}
+
+func (c *Config) GetQueueAutoDelete() bool {
+	return c.Queue.AutoDelete
+}
+
+func (c *Config) GetQueueInternal() bool {
+	return c.Queue.Exclusive
+}
+
+func (c *Config) GetQueueNoWait() bool {
+	return c.Queue.NoWait
+}
+
+func (c *Config) GetQueueBindNoWait() bool {
+	return c.Queue.BindNoWait
+}
+
+func (c *Config) GetQueueBindingKey() string {
+	return c.Queue.BindingKey
+}
+
+func (c *Config) GetConsumeConsumer() string {
+	return c.Consume.Consumer
+}
+
+func (c *Config) GetConsumeAutoAck() bool {
+	return c.Consume.AutoAck
+}
+
+func (c *Config) GetConsumeExclusive() bool {
+	return c.Consume.Exclusive
+}
+
+func (c *Config) GetConsumeNoLocal() bool {
+	return c.Consume.NoLocal
+}
+
+func (c *Config) GetConsumeNoWait() bool {
+	return c.Consume.NoWait
+}
+
+func (c *Config) GetPublishMandatory() bool {
+	return c.Publish.Mandatory
+}
+
+func (c *Config) GetPublishImmediate() bool {
+	return c.Publish.Immediate
+}
+
+func (c *Config) GetPublishRoutingKey() string {
+	return c.Publish.RoutingKey
+}
+
+func (c *Config) GetSchedulerRemindIn() int {
+	return c.Scheduler.RemindIn
 }

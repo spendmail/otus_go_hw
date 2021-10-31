@@ -20,6 +20,7 @@ var (
 	ErrGetDayAheadEvents   = errors.New("getting day events error")
 	ErrGetWeekAheadEvents  = errors.New("getting week events error")
 	ErrGetMonthAheadEvents = errors.New("getting month events error")
+	ErrGetComingEvents     = errors.New("getting coming events error")
 )
 
 type Config interface {
@@ -96,7 +97,8 @@ func (s *Storage) UpdateEvent(ctx context.Context, event storage.Event) (storage
 		        begin_date = :begin_date,
 		        end_date = :end_date,
 		        description = :description,
-		        owner_id = :owner_id
+		        owner_id = :owner_id,
+		        notification_sent = :notification_sent
 		WHERE id = :id
 	`
 
@@ -195,4 +197,41 @@ func (s *Storage) GetMonthAheadEvents(ctx context.Context) ([]storage.Event, err
 	}
 
 	return events, nil
+}
+
+// GetComingEvents returns events slice, that need to be notified.
+func (s *Storage) GetComingEvents(ctx context.Context) ([]storage.Event, error) {
+	var events []storage.Event
+
+	query := "SELECT * FROM app_event WHERE begin_date > NOW() AND begin_date < NOW() + interval '1 day' AND notification_sent is FALSE"
+	rows, err := s.db.NamedQueryContext(ctx, query, storage.Event{})
+	if err != nil {
+		return nil, fmt.Errorf("%w: %v", ErrGetComingEvents, err)
+	}
+
+	defer rows.Close()
+
+	for rows.Next() {
+		var event storage.Event
+
+		err := rows.StructScan(&event)
+		if err != nil {
+			return nil, fmt.Errorf("%w: %v", ErrGetComingEvents, err)
+		}
+
+		events = append(events, event)
+	}
+
+	return events, nil
+}
+
+// RemoveExpiredEvents removes events happened more than one year ago.
+func (s *Storage) RemoveExpiredEvents(ctx context.Context) error {
+	query := "DELETE FROM app_event WHERE end_date < NOW() - interval '1 year'"
+	_, err := s.db.ExecContext(ctx, query)
+	if err != nil {
+		return fmt.Errorf("%w: %v", ErrRemoveEvent, err)
+	}
+
+	return nil
 }

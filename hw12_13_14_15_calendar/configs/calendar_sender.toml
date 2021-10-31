@@ -1,0 +1,39 @@
+[logger]
+#    available levels: debug, info, warn, error
+    level = "debug"
+    file = "/tmp/calendar_sender.log"
+    size = 500
+    backups = 3
+    age = 30
+
+[storage]
+implementation = "sql"
+# implementation = "memory"
+dsn = "pgsql://calendar:calendar@localhost:5432/calendar?sslmode=disable"
+
+[rabbitmq]
+dsn = "amqp://guest:guest@localhost:5672/"
+
+[exchange]
+name = "calendar"
+kind = "topic"
+durable = true
+autoDeleted = false
+internal = false
+noWait = false
+
+[queue]
+name = ""
+durable = false
+autoDelete = false
+exclusive = true
+noWait = false
+bindNoWait = false
+bindingKey = "calendar.notification.*"
+
+[consume]
+consumer = ""
+autoAck = true
+exclusive = false
+noLocal = false
+noWait = false

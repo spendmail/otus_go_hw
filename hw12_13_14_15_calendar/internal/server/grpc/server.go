@@ -62,6 +62,7 @@ func (s *Service) CreateEvent(ctx context.Context, createEventRequest *pb.Create
 	event.Title = createEventRequest.Event.Title
 	event.Description = createEventRequest.Event.Description
 	event.OwnerID = createEventRequest.Event.OwnerId
+	event.NotificationSent = createEventRequest.Event.NotificationSent
 
 	if beginDate, err := time.Parse(EventDateFormat, createEventRequest.Event.BeginDate); err != nil {
 		event.BeginDate = time.Now()
@@ -84,12 +85,13 @@ func (s *Service) CreateEvent(ctx context.Context, createEventRequest *pb.Create
 
 	return &pb.CreateEventResponse{
 		Event: &pb.Event{
-			Id:          event.ID,
-			Title:       event.Title,
-			BeginDate:   event.BeginDate.Format(EventDateFormat),
-			EndDate:     event.EndDate.Format(EventDateFormat),
-			Description: event.Description,
-			OwnerId:     event.OwnerID,
+			Id:               event.ID,
+			Title:            event.Title,
+			BeginDate:        event.BeginDate.Format(EventDateFormat),
+			EndDate:          event.EndDate.Format(EventDateFormat),
+			Description:      event.Description,
+			OwnerId:          event.OwnerID,
+			NotificationSent: event.NotificationSent,
 		},
 	}, nil
 }
@@ -102,6 +104,7 @@ func (s *Service) UpdateEvent(ctx context.Context, updateEventRequest *pb.Update
 	event.Title = updateEventRequest.Event.Title
 	event.Description = updateEventRequest.Event.Description
 	event.OwnerID = updateEventRequest.Event.OwnerId
+	event.NotificationSent = updateEventRequest.Event.NotificationSent
 
 	if beginDate, err := time.Parse(EventDateFormat, updateEventRequest.Event.BeginDate); err != nil {
 		event.BeginDate = time.Now()
@@ -124,12 +127,13 @@ func (s *Service) UpdateEvent(ctx context.Context, updateEventRequest *pb.Update
 
 	return &pb.UpdateEventResponse{
 		Event: &pb.Event{
-			Id:          event.ID,
-			Title:       event.Title,
-			BeginDate:   event.BeginDate.Format(EventDateFormat),
-			EndDate:     event.EndDate.Format(EventDateFormat),
-			Description: event.Description,
-			OwnerId:     event.OwnerID,
+			Id:               event.ID,
+			Title:            event.Title,
+			BeginDate:        event.BeginDate.Format(EventDateFormat),
+			EndDate:          event.EndDate.Format(EventDateFormat),
+			Description:      event.Description,
+			OwnerId:          event.OwnerID,
+			NotificationSent: event.NotificationSent,
 		},
 	}, nil
 }
@@ -159,12 +163,13 @@ func (s *Service) GetDayAheadEvents(ctx context.Context, _ *pb.GetDayAheadEvents
 
 	for i, event := range events {
 		pbEvents.Items[i] = &pb.Event{
-			Id:          event.ID,
-			Title:       event.Title,
-			BeginDate:   event.BeginDate.Format(EventDateFormat),
-			EndDate:     event.EndDate.Format(EventDateFormat),
-			Description: event.Description,
-			OwnerId:     event.OwnerID,
+			Id:               event.ID,
+			Title:            event.Title,
+			BeginDate:        event.BeginDate.Format(EventDateFormat),
+			EndDate:          event.EndDate.Format(EventDateFormat),
+			Description:      event.Description,
+			OwnerId:          event.OwnerID,
+			NotificationSent: event.NotificationSent,
 		}
 	}
 
@@ -183,12 +188,13 @@ func (s *Service) GetWeekAheadEvents(ctx context.Context, _ *pb.GetWeekAheadEven
 
 	for i, event := range events {
 		pbEvents.Items[i] = &pb.Event{
-			Id:          event.ID,
-			Title:       event.Title,
-			BeginDate:   event.BeginDate.Format(EventDateFormat),
-			EndDate:     event.EndDate.Format(EventDateFormat),
-			Description: event.Description,
-			OwnerId:     event.OwnerID,
+			Id:               event.ID,
+			Title:            event.Title,
+			BeginDate:        event.BeginDate.Format(EventDateFormat),
+			EndDate:          event.EndDate.Format(EventDateFormat),
+			Description:      event.Description,
+			OwnerId:          event.OwnerID,
+			NotificationSent: event.NotificationSent,
 		}
 	}
 
@@ -207,12 +213,13 @@ func (s *Service) GetMonthAheadEvents(ctx context.Context, _ *pb.GetMonthAheadEv
 
 	for i, event := range events {
 		pbEvents.Items[i] = &pb.Event{
-			Id:          event.ID,
-			Title:       event.Title,
-			BeginDate:   event.BeginDate.Format(EventDateFormat),
-			EndDate:     event.EndDate.Format(EventDateFormat),
-			Description: event.Description,
-			OwnerId:     event.OwnerID,
+			Id:               event.ID,
+			Title:            event.Title,
+			BeginDate:        event.BeginDate.Format(EventDateFormat),
+			EndDate:          event.EndDate.Format(EventDateFormat),
+			Description:      event.Description,
+			OwnerId:          event.OwnerID,
+			NotificationSent: event.NotificationSent,
 		}
 	}
 

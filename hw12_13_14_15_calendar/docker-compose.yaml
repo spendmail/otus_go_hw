@@ -1,0 +1,98 @@
+version: '3.7'
+
+networks:
+  rabbit:
+    driver: bridge
+  postgres:
+    driver: bridge
+
+services:
+  postgres:
+    image: postgres
+    hostname: postgres
+    container_name: postgres
+    ports:
+      - '5432:5432'
+    expose:
+      - 5432
+    restart: always
+    environment:
+      POSTGRES_USER: calendar
+      POSTGRES_PASSWORD: calendar
+      POSTGRES_DB: calendar
+    volumes:
+      - ./migrations/20210722120225_init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - postgres
+
+  rabbit:
+    image: rabbitmq:3.7.17-management
+    hostname: rabbit
+    container_name: rabbit
+    ports:
+      - '15672:15672'
+      - '5672:5672'
+    expose:
+      - 15672
+    restart: always
+    networks:
+      - rabbit
+
+  calendar:
+    build:
+      context: .
+      dockerfile: ./cmd/calendar/Dockerfile
+      args:
+        - CONFIG_FILE_NAME=calendar
+    container_name: calendar
+    depends_on:
+      - rabbit
+      - postgres
+    restart: on-failure
+    environment:
+      - WAIT_HOSTS=postgres:5432, rabbit:5672
+    ports:
+      - '8080:8080'
+      - '50051:50051'
+    expose:
+      - 8080
+      - 50051
+    networks:
+      - rabbit
+      - postgres
+
+  calendar_scheduler:
+    build:
+      context: .
+      dockerfile: ./cmd/calendar_scheduler/Dockerfile
+      args:
+        - CONFIG_FILE_NAME=calendar_scheduler
+    container_name: calendar_scheduler
+    depends_on:
+      - calendar
+      - rabbit
+      - postgres
+    restart: on-failure
+    environment:
+      - WAIT_HOSTS=postgres:5432, rabbit:5672
+    networks:
+      - rabbit
+      - postgres
+
+  calendar_sender:
+    build:
+      context: .
+      dockerfile: ./cmd/calendar_sender/Dockerfile
+      args:
+        - CONFIG_FILE_NAME=calendar_sender
+    container_name: calendar_sender
+    depends_on:
+      - calendar
+      - rabbit
+      - postgres
+    restart: on-failure
+    environment:
+      - WAIT_HOSTS=postgres:5432, rabbit:5672
+    networks:
+      - rabbit
+      - postgres

@@ -48,4 +48,16 @@ migrate:
 generate:
 	go generate ./...
 
+up:
+	docker-compose up -d
+
+upl:
+	docker-compose up
+
+down:
+	docker-compose down
+
+rebuild:
+	docker-compose up --build
+
 .PHONY: build run build-img run-img version test lint

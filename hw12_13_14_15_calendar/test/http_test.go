@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
-	"fmt"
+	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
@@ -15,8 +15,6 @@ import (
 	_ "github.com/lib/pq"
 	"github.com/stretchr/testify/require"
 )
-
-const delay = 5 * time.Second
 
 var (
 	HTTPHost    = os.Getenv("TESTS_HTTP_HOST")
@@ -43,58 +41,222 @@ func init() {
 	}
 }
 
+//nolint:funlen,gocognit
 func TestHTTP(t *testing.T) {
-	log.Printf("wait %s for table creation...", delay)
-	time.Sleep(delay)
+	// Waiting for a few seconds in order to create a schema.
+	time.Sleep(5 * time.Second)
 
+	// DB connection.
 	db, err := sqlx.ConnectContext(context.Background(), "postgres", PostgresDSN)
 	if err != nil {
 		panic(err)
 	}
 
-	httpURLCreate := HTTPHost + "/event/create"
-	// httpUrlUpdate := HTTPHost + "/event/update"
-	// httpUrlDelete := HTTPHost + "/event/delete"
-	// httpUrlDaily := HTTPHost + "/event/daily"
-	// httpUrlWeekly := HTTPHost + "/event/weekly"
-	// httpUrlMonth := HTTPHost + "/event/month"
+	creatingURL := HTTPHost + "/event/create"
+	updatingURL := HTTPHost + "/event/update"
+	removingURL := HTTPHost + "/event/remove"
+	dayEventsURL := HTTPHost + "/event/day"
+	weekEventsURL := HTTPHost + "/event/week"
+	monthEventsURL := HTTPHost + "/event/month"
 
-	t.Run("test event create", func(t *testing.T) {
-		title := fmt.Sprintf("Test_%d", time.Now().Unix())
+	t.Run("test event crud", func(t *testing.T) {
+		// CREATING REQUEST.
 
+		// Initial event.
 		event := Event{
-			ID:    1,
-			Title: title,
+			ID:               1,
+			Title:            "Title",
+			BeginDate:        time.Now(),
+			EndDate:          time.Now(),
+			Description:      "Description",
+			OwnerID:          1,
+			NotificationSent: false,
 		}
 
+		// Receiving event entities.
+		var events []Event
+
+		// Marshalling event in order to send a request.
 		jsonData, err := json.Marshal(event)
 		if err != nil {
 			panic(err)
 		}
 
-		request, err := http.NewRequestWithContext(context.Background(), http.MethodPost, httpURLCreate, bytes.NewBuffer(jsonData))
+		// Creation request.
+		request, err := http.NewRequestWithContext(context.Background(), http.MethodPost, creatingURL, bytes.NewBuffer(jsonData))
 		if err != nil {
 			panic(err)
 		}
 
-		resp, err := http.DefaultClient.Do(request)
+		// Sending the creating request.
+		response, err := http.DefaultClient.Do(request)
 		if err != nil {
 			panic(err)
 		}
 
-		defer resp.Body.Close()
+		defer response.Body.Close()
 
-		var response string
-		createdMessageText := fmt.Sprintf("Event %q (%d) has been created successfully.", event.Title, event.ID)
-
-		json.NewDecoder(resp.Body).Decode(&response)
-
-		var events []Event
-
-		err = db.Select(&events, "SELECT * FROM app_event WHERE title=$1", title)
+		// Checking created rows in database.
+		err = db.Select(&events, "SELECT * FROM app_event WHERE title=$1", event.Title)
 		require.NoError(t, err, "should be without errors")
 		require.Len(t, events, 1, "new event should be added")
-		require.Equal(t, http.StatusOK, resp.StatusCode, "response statuscode should be ok")
-		require.Equal(t, createdMessageText, response, "response message should be equal")
+		require.Equal(t, http.StatusOK, response.StatusCode, "response status code should be ok")
+
+		// UPDATING REQUEST.
+
+		// Updating event entity.
+		event.Title = "New Title"
+
+		// Marshalling event in order to send a request.
+		jsonData, err = json.Marshal(event)
+		if err != nil {
+			panic(err)
+		}
+
+		// Creating the updating request.
+		request, err = http.NewRequestWithContext(context.Background(), http.MethodPost, updatingURL, bytes.NewBuffer(jsonData))
+		if err != nil {
+			panic(err)
+		}
+
+		// Sending the updating request.
+		response, err = http.DefaultClient.Do(request)
+		if err != nil {
+			panic(err)
+		}
+
+		defer response.Body.Close()
+
+		// Checking updated rows in database.
+		events = []Event{}
+		err = db.Select(&events, "SELECT * FROM app_event WHERE title=$1", event.Title)
+		require.NoError(t, err, "should be without errors")
+		require.Len(t, events, 1, "updated event not found")
+		require.Equal(t, http.StatusOK, response.StatusCode, "response status code should be ok")
+
+		// DAY EVENTS REQUEST.
+
+		// Creating the request.
+		request, err = http.NewRequestWithContext(context.Background(), http.MethodPost, dayEventsURL, nil)
+		if err != nil {
+			panic(err)
+		}
+
+		// Sending the request.
+		response, err = http.DefaultClient.Do(request)
+		if err != nil {
+			panic(err)
+		}
+
+		defer response.Body.Close()
+
+		// Getting response body.
+		body, err := ioutil.ReadAll(response.Body)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		// Unmarshalling response body.
+		events = []Event{}
+		err = json.Unmarshal(body, &events)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		// Checking day events number.
+		require.NoError(t, err, "should be without errors")
+		require.Len(t, events, 1, "day events number must be 1")
+		require.Equal(t, http.StatusOK, response.StatusCode, "response status code should be ok")
+
+		// WEEK EVENTS REQUEST.
+
+		// Creating the request.
+		request, err = http.NewRequestWithContext(context.Background(), http.MethodPost, weekEventsURL, nil)
+		if err != nil {
+			panic(err)
+		}
+
+		// Sending the request.
+		response, err = http.DefaultClient.Do(request)
+		if err != nil {
+			panic(err)
+		}
+
+		defer response.Body.Close()
+
+		// Getting response body.
+		body, err = ioutil.ReadAll(response.Body)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		// Unmarshalling response body.
+		events = []Event{}
+		err = json.Unmarshal(body, &events)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		// Checking day events number.
+		require.NoError(t, err, "should be without errors")
+		require.Len(t, events, 1, "day events number must be 1")
+		require.Equal(t, http.StatusOK, response.StatusCode, "response status code should be ok")
+
+		// MONTH EVENTS REQUEST.
+
+		// Creating the request.
+		request, err = http.NewRequestWithContext(context.Background(), http.MethodPost, monthEventsURL, nil)
+		if err != nil {
+			panic(err)
+		}
+
+		// Sending the request.
+		response, err = http.DefaultClient.Do(request)
+		if err != nil {
+			panic(err)
+		}
+
+		defer response.Body.Close()
+
+		// Getting response body.
+		body, err = ioutil.ReadAll(response.Body)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		// Unmarshalling response body.
+		events = []Event{}
+		err = json.Unmarshal(body, &events)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		// Checking day events number.
+		require.NoError(t, err, "should be without errors")
+		require.Len(t, events, 1, "day events number must be 1")
+		require.Equal(t, http.StatusOK, response.StatusCode, "response status code should be ok")
+
+		// REMOVING REQUEST.
+
+		// Creating the removing request.
+		request, err = http.NewRequestWithContext(context.Background(), http.MethodPost, removingURL, bytes.NewBuffer(jsonData))
+		if err != nil {
+			panic(err)
+		}
+
+		// Sending the removing request.
+		response, err = http.DefaultClient.Do(request)
+		if err != nil {
+			panic(err)
+		}
+
+		defer response.Body.Close()
+
+		// Checking removed rows in database.
+		events = []Event{}
+		err = db.Select(&events, "SELECT * FROM app_event WHERE title=$1", event.Title)
+		require.NoError(t, err, "should be without errors")
+		require.Len(t, events, 0, "event is not removed")
+		require.Equal(t, http.StatusOK, response.StatusCode, "response status code should be ok")
 	})
 }

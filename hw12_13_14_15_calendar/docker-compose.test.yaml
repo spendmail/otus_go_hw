@@ -10,7 +10,7 @@ networks:
 
 services:
   integration_tests:
-    build: tests
+    build: test
     command: 'true'
     environment:
       TESTS_AMQP_DSN: 'amqp://guest:guest@rabbit:5672/'

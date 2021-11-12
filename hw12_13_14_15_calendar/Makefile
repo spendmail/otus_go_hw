@@ -60,7 +60,7 @@ down:
 rebuild:
 	docker-compose up --build
 
-integration-tests-cleanup:
+bdd-clean:
 	docker-compose -f docker-compose.test.yaml down \
     --rmi local \
 		--volumes \
@@ -68,7 +68,7 @@ integration-tests-cleanup:
 		--timeout 60; \
   	docker-compose rm -f
 
-integration-tests:
+bdd:
 	set -e ;\
 	docker-compose -f docker-compose.test.yaml up --build -d ;\
 	test_status_code=0 ;\

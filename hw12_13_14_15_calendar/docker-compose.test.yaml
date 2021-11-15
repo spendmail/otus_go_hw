@@ -57,7 +57,7 @@ services:
   calendar:
     build:
       context: .
-      dockerfile: ./cmd/calendar/Dockerfile
+      dockerfile: build/Dockerfile.calendar
       args:
         - CONFIG_FILE_NAME=calendar
     hostname: calendar
@@ -76,7 +76,7 @@ services:
   calendar_scheduler:
     build:
       context: .
-      dockerfile: ./cmd/calendar_scheduler/Dockerfile
+      dockerfile: build/Dockerfile.calendar_scheduler
       args:
         - CONFIG_FILE_NAME=calendar_scheduler
     container_name: calendar_scheduler_test
@@ -96,7 +96,7 @@ services:
   calendar_sender:
     build:
       context: .
-      dockerfile: ./cmd/calendar_sender/Dockerfile
+      dockerfile: build/Dockerfile.calendar_sender
       args:
         - CONFIG_FILE_NAME=calendar_sender
     container_name: calendar_sender_test

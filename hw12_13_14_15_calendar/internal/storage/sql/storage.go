@@ -21,6 +21,7 @@ var (
 	ErrGetWeekAheadEvents  = errors.New("getting week events error")
 	ErrGetMonthAheadEvents = errors.New("getting month events error")
 	ErrGetComingEvents     = errors.New("getting coming events error")
+	ErrGetEvent            = errors.New("getting event error")
 )
 
 type Config interface {
@@ -98,7 +99,8 @@ func (s *Storage) UpdateEvent(ctx context.Context, event storage.Event) (storage
 		        end_date = :end_date,
 		        description = :description,
 		        owner_id = :owner_id,
-		        notification_sent = :notification_sent
+		        notification_sent = :notification_sent,
+		        notification_received = :notification_received
 		WHERE id = :id
 	`
 
@@ -234,4 +236,32 @@ func (s *Storage) RemoveExpiredEvents(ctx context.Context) error {
 	}
 
 	return nil
+}
+
+// GetEventByID returns events by id, if exists.
+func (s *Storage) GetEventByID(ctx context.Context, id int64) (storage.Event, error) {
+	event := storage.Event{
+		ID: id,
+	}
+
+	query := "SELECT * FROM app_event WHERE id = :id"
+	rows, err := s.db.NamedQueryContext(ctx, query, event)
+	if err != nil {
+		return event, fmt.Errorf("%w: %v", ErrGetEvent, err)
+	}
+
+	defer rows.Close()
+
+	for rows.Next() {
+		var event storage.Event
+
+		err := rows.StructScan(&event)
+		if err != nil {
+			return event, fmt.Errorf("%w: %v", ErrGetEvent, err)
+		}
+
+		break
+	}
+
+	return event, nil
 }

@@ -22,13 +22,14 @@ var (
 )
 
 type Event struct {
-	ID               int64     `db:"id" json:"id"`
-	Title            string    `db:"title" json:"title"`
-	BeginDate        time.Time `db:"begin_date" json:"begin_date"`
-	EndDate          time.Time `db:"end_date" json:"end_date"`
-	Description      string    `db:"description" json:"description"`
-	OwnerID          int64     `db:"owner_id" json:"owner_id"`
-	NotificationSent bool      `db:"notification_sent" json:"notification_sent"`
+	ID                   int64     `db:"id" json:"id"`
+	Title                string    `db:"title" json:"title"`
+	BeginDate            time.Time `db:"begin_date" json:"begin_date"`
+	EndDate              time.Time `db:"end_date" json:"end_date"`
+	Description          string    `db:"description" json:"description"`
+	OwnerID              int64     `db:"owner_id" json:"owner_id"`
+	NotificationSent     bool      `db:"notification_sent" json:"notification_sent"`
+	NotificationReceived bool      `db:"notification_received" json:"notification_received"`
 }
 
 func init() {
@@ -44,7 +45,7 @@ func init() {
 //nolint:funlen,gocognit
 func TestHTTP(t *testing.T) {
 	// Waiting for a few seconds in order to create a schema.
-	time.Sleep(5 * time.Second)
+	time.Sleep(10 * time.Second)
 
 	// DB connection.
 	db, err := sqlx.ConnectContext(context.Background(), "postgres", PostgresDSN)
@@ -64,13 +65,14 @@ func TestHTTP(t *testing.T) {
 
 		// Initial event.
 		event := Event{
-			ID:               1,
-			Title:            "Title",
-			BeginDate:        time.Now(),
-			EndDate:          time.Now(),
-			Description:      "Description",
-			OwnerID:          1,
-			NotificationSent: false,
+			ID:                   1,
+			Title:                "Title",
+			BeginDate:            time.Now(),
+			EndDate:              time.Now(),
+			Description:          "Description",
+			OwnerID:              1,
+			NotificationSent:     false,
+			NotificationReceived: false,
 		}
 
 		// Receiving event entities.
@@ -255,6 +257,18 @@ func TestHTTP(t *testing.T) {
 		// Checking removed rows in database.
 		events = []Event{}
 		err = db.Select(&events, "SELECT * FROM app_event WHERE title=$1", event.Title)
+		require.NoError(t, err, "should be without errors")
+		require.Len(t, events, 0, "event is not removed")
+		require.Equal(t, http.StatusOK, response.StatusCode, "response status code should be ok")
+
+		// RECEIVING REQUEST.
+
+		// Waiting for event receiving
+		time.Sleep(2 * time.Second)
+
+		// Checking removed rows in database.
+		events = []Event{}
+		err = db.Select(&events, "SELECT * FROM app_event WHERE notification_received is true")
 		require.NoError(t, err, "should be without errors")
 		require.Len(t, events, 0, "event is not removed")
 		require.Equal(t, http.StatusOK, response.StatusCode, "response status code should be ok")

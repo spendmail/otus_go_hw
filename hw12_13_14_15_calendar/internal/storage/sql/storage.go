@@ -259,8 +259,6 @@ func (s *Storage) GetEventByID(ctx context.Context, id int64) (storage.Event, er
 		if err != nil {
 			return event, fmt.Errorf("%w: %v", ErrGetEvent, err)
 		}
-
-		break
 	}
 
 	return event, nil

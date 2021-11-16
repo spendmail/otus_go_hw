@@ -58,7 +58,7 @@ down:
 	docker-compose -f deployments/docker-compose.yaml down
 
 rebuild:
-	docker-compose -f deployments/docker-compose.yaml up --build
+	docker-compose -f deployments/docker-compose.yaml up --build -d
 
 bdd-clean:
 	docker-compose -f deployments/docker-compose.test.yaml down \

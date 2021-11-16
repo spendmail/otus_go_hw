@@ -45,7 +45,8 @@ func init() {
 //nolint:funlen,gocognit
 func TestHTTP(t *testing.T) {
 	// Waiting for a few seconds in order to create a schema.
-	time.Sleep(10 * time.Second)
+	t.Logf("Waiting for the database preparaion...\n")
+	time.Sleep(5 * time.Second)
 
 	// DB connection.
 	db, err := sqlx.ConnectContext(context.Background(), "postgres", PostgresDSN)
@@ -67,8 +68,8 @@ func TestHTTP(t *testing.T) {
 		event := Event{
 			ID:                   1,
 			Title:                "Title",
-			BeginDate:            time.Now(),
-			EndDate:              time.Now(),
+			BeginDate:            time.Now().Add(time.Hour * 12),
+			EndDate:              time.Now().Add(time.Hour * 12),
 			Description:          "Description",
 			OwnerID:              1,
 			NotificationSent:     false,
@@ -100,6 +101,7 @@ func TestHTTP(t *testing.T) {
 
 		// Checking created rows in database.
 		err = db.Select(&events, "SELECT * FROM app_event WHERE title=$1", event.Title)
+		t.Logf("Event creating checking...\n")
 		require.NoError(t, err, "should be without errors")
 		require.Len(t, events, 1, "new event should be added")
 		require.Equal(t, http.StatusOK, response.StatusCode, "response status code should be ok")
@@ -131,6 +133,7 @@ func TestHTTP(t *testing.T) {
 
 		// Checking updated rows in database.
 		events = []Event{}
+		t.Logf("Event updating checking...\n")
 		err = db.Select(&events, "SELECT * FROM app_event WHERE title=$1", event.Title)
 		require.NoError(t, err, "should be without errors")
 		require.Len(t, events, 1, "updated event not found")
@@ -166,6 +169,7 @@ func TestHTTP(t *testing.T) {
 		}
 
 		// Checking day events number.
+		t.Logf("Daily event receiving checking...\n")
 		require.NoError(t, err, "should be without errors")
 		require.Len(t, events, 1, "day events number must be 1")
 		require.Equal(t, http.StatusOK, response.StatusCode, "response status code should be ok")
@@ -200,6 +204,7 @@ func TestHTTP(t *testing.T) {
 		}
 
 		// Checking day events number.
+		t.Logf("Weekly event receiving checking...\n")
 		require.NoError(t, err, "should be without errors")
 		require.Len(t, events, 1, "day events number must be 1")
 		require.Equal(t, http.StatusOK, response.StatusCode, "response status code should be ok")
@@ -234,8 +239,23 @@ func TestHTTP(t *testing.T) {
 		}
 
 		// Checking day events number.
+		t.Logf("Month event receiving checking...\n")
 		require.NoError(t, err, "should be without errors")
 		require.Len(t, events, 1, "day events number must be 1")
+		require.Equal(t, http.StatusOK, response.StatusCode, "response status code should be ok")
+
+		// RECEIVING REQUEST.
+
+		// Waiting for event receiving
+		t.Logf("Waiting for notification receiving...\n")
+		time.Sleep(5 * time.Second)
+
+		// Checking removed rows in database.
+		events = []Event{}
+		err = db.Select(&events, "SELECT * FROM app_event WHERE notification_received is true")
+		t.Logf("Notification receiving checking...\n")
+		require.NoError(t, err, "should be without errors")
+		require.Len(t, events, 1, "event notification is not received")
 		require.Equal(t, http.StatusOK, response.StatusCode, "response status code should be ok")
 
 		// REMOVING REQUEST.
@@ -257,18 +277,7 @@ func TestHTTP(t *testing.T) {
 		// Checking removed rows in database.
 		events = []Event{}
 		err = db.Select(&events, "SELECT * FROM app_event WHERE title=$1", event.Title)
-		require.NoError(t, err, "should be without errors")
-		require.Len(t, events, 0, "event is not removed")
-		require.Equal(t, http.StatusOK, response.StatusCode, "response status code should be ok")
-
-		// RECEIVING REQUEST.
-
-		// Waiting for event receiving
-		time.Sleep(2 * time.Second)
-
-		// Checking removed rows in database.
-		events = []Event{}
-		err = db.Select(&events, "SELECT * FROM app_event WHERE notification_received is true")
+		t.Logf("Event removing checking...\n")
 		require.NoError(t, err, "should be without errors")
 		require.Len(t, events, 0, "event is not removed")
 		require.Equal(t, http.StatusOK, response.StatusCode, "response status code should be ok")

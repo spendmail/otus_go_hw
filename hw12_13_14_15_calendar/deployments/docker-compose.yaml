@@ -21,7 +21,7 @@ services:
       POSTGRES_PASSWORD: calendar
       POSTGRES_DB: calendar
     volumes:
-      - ../migrations/20210722120225_init.sql:/docker-entrypoint-initdb.d/init.sql
+      - ../migrations/init.sql:/docker-entrypoint-initdb.d/init.sql
     networks:
       - postgres
 
@@ -43,7 +43,7 @@ services:
       context: ../
       dockerfile: build/Dockerfile.calendar
       args:
-        - CONFIG_FILE_NAME=calendar
+        - CONFIG_FILE_NAME=calendar.docker
     container_name: calendar
     depends_on:
       - rabbit
@@ -57,6 +57,8 @@ services:
     expose:
       - 8080
       - 50051
+    volumes:
+      - ./logs/:/tmp/
     networks:
       - rabbit
       - postgres
@@ -66,7 +68,7 @@ services:
       context: ../
       dockerfile: build/Dockerfile.calendar_scheduler
       args:
-        - CONFIG_FILE_NAME=calendar_scheduler
+        - CONFIG_FILE_NAME=calendar_scheduler.docker
     container_name: calendar_scheduler
     depends_on:
       - calendar
@@ -84,7 +86,7 @@ services:
       context: ../
       dockerfile: build/Dockerfile.calendar_sender
       args:
-        - CONFIG_FILE_NAME=calendar_sender
+        - CONFIG_FILE_NAME=calendar_sender.docker
     container_name: calendar_sender
     depends_on:
       - calendar

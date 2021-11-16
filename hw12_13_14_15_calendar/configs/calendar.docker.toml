@@ -1,0 +1,20 @@
+[logger]
+#    available levels: debug, info, warn, error
+    level = "debug"
+    file = "/tmp/calendar.log"
+    size = 500
+    backups = 3
+    age = 30
+
+[storage]
+implementation = "sql"
+# implementation = "memory"
+dsn = "pgsql://calendar:calendar@postgres:5432/calendar?sslmode=disable"
+
+[http]
+host = "0.0.0.0"
+port = 8080
+
+[grpc]
+host = "0.0.0.0"
+port = 50051

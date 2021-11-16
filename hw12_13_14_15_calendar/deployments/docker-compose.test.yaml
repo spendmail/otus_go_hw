@@ -32,6 +32,8 @@ services:
     image: postgres
     hostname: postgres
     container_name: postgres_test
+    ports:
+      - '5432:5432'
     expose:
       - 5432
     restart: always
@@ -40,7 +42,7 @@ services:
       POSTGRES_PASSWORD: calendar
       POSTGRES_DB: calendar
     volumes:
-      - ../migrations/20210722120225_init.sql:/docker-entrypoint-initdb.d/init.sql
+      - ../migrations/init.sql:/docker-entrypoint-initdb.d/init.sql
     networks:
       - postgres
 
@@ -59,7 +61,7 @@ services:
       context: ../
       dockerfile: build/Dockerfile.calendar
       args:
-        - CONFIG_FILE_NAME=calendar
+        - CONFIG_FILE_NAME=calendar.docker.test
     hostname: calendar
     container_name: calendar_test
     depends_on:
@@ -78,7 +80,7 @@ services:
       context: ../
       dockerfile: build/Dockerfile.calendar_scheduler
       args:
-        - CONFIG_FILE_NAME=calendar_scheduler
+        - CONFIG_FILE_NAME=calendar_scheduler.docker.test
     container_name: calendar_scheduler_test
     depends_on:
       - calendar
@@ -98,7 +100,7 @@ services:
       context: ../
       dockerfile: build/Dockerfile.calendar_sender
       args:
-        - CONFIG_FILE_NAME=calendar_sender
+        - CONFIG_FILE_NAME=calendar_sender.docker.test
     container_name: calendar_sender_test
     depends_on:
       - calendar

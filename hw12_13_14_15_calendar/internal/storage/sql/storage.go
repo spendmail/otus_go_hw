@@ -244,7 +244,7 @@ func (s *Storage) GetEventByID(ctx context.Context, id int64) (storage.Event, er
 		ID: id,
 	}
 
-	query := "SELECT * FROM app_event WHERE id = :id"
+	query := "SELECT * FROM app_event WHERE id = :id LIMIT 1"
 	rows, err := s.db.NamedQueryContext(ctx, query, event)
 	if err != nil {
 		return event, fmt.Errorf("%w: %v", ErrGetEvent, err)
@@ -252,13 +252,10 @@ func (s *Storage) GetEventByID(ctx context.Context, id int64) (storage.Event, er
 
 	defer rows.Close()
 
-	for rows.Next() {
-		var event storage.Event
-
-		err := rows.StructScan(&event)
-		if err != nil {
-			return event, fmt.Errorf("%w: %v", ErrGetEvent, err)
-		}
+	rows.Next()
+	err = rows.StructScan(&event)
+	if err != nil {
+		return event, fmt.Errorf("%w: %v", ErrGetEvent, err)
 	}
 
 	return event, nil

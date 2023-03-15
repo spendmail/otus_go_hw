@@ -1,11 +1,3 @@
--- +goose Down
--- +goose StatementBegin
-DROP SEQUENCE IF EXISTS app_event_id_seq CASCADE;
-DROP TABLE IF EXISTS app_event;
--- +goose StatementEnd
-
--- +goose Up
--- +goose StatementBegin
 CREATE SEQUENCE app_event_id_seq INCREMENT BY 1 MINVALUE 1 START 1;
 CREATE TABLE app_event
 (
@@ -20,4 +12,4 @@ CREATE TABLE app_event
     PRIMARY KEY (id)
 );
 CREATE INDEX IDX_13EE8992166D1F9C ON app_event (id);
--- +goose StatementEnd
+

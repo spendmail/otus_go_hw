@@ -38,6 +38,7 @@ type Storage interface {
 	GetMonthAheadEvents(ctx context.Context) ([]storage.Event, error)
 	GetComingEvents(ctx context.Context) ([]storage.Event, error)
 	RemoveExpiredEvents(ctx context.Context) error
+	GetEventByID(ctx context.Context, id int64) (storage.Event, error)
 }
 
 func New(logger Logger, storage Storage) *App {

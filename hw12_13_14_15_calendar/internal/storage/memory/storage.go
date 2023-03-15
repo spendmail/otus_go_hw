@@ -150,3 +150,21 @@ func (s *Storage) RemoveExpiredEvents(ctx context.Context) error {
 
 	return nil
 }
+
+// GetEventByID returns events by id, if exists.
+func (s *Storage) GetEventByID(ctx context.Context, id int64) (storage.Event, error) {
+	event := storage.Event{
+		ID: id,
+	}
+
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+
+	for _, event := range s.events {
+		if event.ID == id {
+			break
+		}
+	}
+
+	return event, nil
+}

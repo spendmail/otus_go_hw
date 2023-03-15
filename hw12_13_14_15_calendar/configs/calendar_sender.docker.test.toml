@@ -9,7 +9,7 @@
 [storage]
 implementation = "sql"
 # implementation = "memory"
-dsn = "pgsql://calendar:calendar@localhost:5432/calendar?sslmode=disable"
+dsn = "pgsql://calendar:calendar@postgres:5432/calendar?sslmode=disable"
 
 [rabbitmq]
 dsn = "amqp://guest:guest@rabbit:5672/"

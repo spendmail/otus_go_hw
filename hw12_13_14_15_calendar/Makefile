@@ -48,4 +48,32 @@ migrate:
 generate:
 	go generate ./...
 
+up:
+	docker-compose -f deployments/docker-compose.yaml up -d
+
+upl:
+	docker-compose -f deployments/docker-compose.yaml up
+
+down:
+	docker-compose -f deployments/docker-compose.yaml down
+
+rebuild:
+	docker-compose -f deployments/docker-compose.yaml up --build -d
+
+bdd-clean:
+	docker-compose -f deployments/docker-compose.test.yaml down \
+    --rmi local \
+		--volumes \
+		--remove-orphans \
+		--timeout 60; \
+  	docker-compose rm -f
+
+bdd:
+	set -e ;\
+	docker-compose -f deployments/docker-compose.test.yaml up --build -d ;\
+	test_status_code=0 ;\
+	docker-compose -f deployments/docker-compose.test.yaml run integration_tests go test -v || test_status_code=$$? ;\
+	docker-compose -f deployments/docker-compose.test.yaml down ;\
+	exit $$test_status_code ;
+
 .PHONY: build run build-img run-img version test lint

@@ -9,9 +9,11 @@ import (
 	"syscall"
 
 	_ "github.com/jackc/pgx/stdlib"
+	internalapp "github.com/spendmail/otus_go_hw/hw12_13_14_15_calendar/internal/app"
 	internalconfig "github.com/spendmail/otus_go_hw/hw12_13_14_15_calendar/internal/config"
 	internallogger "github.com/spendmail/otus_go_hw/hw12_13_14_15_calendar/internal/logger"
 	internalrabbitmq "github.com/spendmail/otus_go_hw/hw12_13_14_15_calendar/internal/rabbitmq"
+	factorystorage "github.com/spendmail/otus_go_hw/hw12_13_14_15_calendar/internal/storage/factory"
 )
 
 var configPath string
@@ -40,6 +42,13 @@ func main() {
 
 	// Logger initialization.
 	logger := internallogger.New(config)
+
+	// Storage initialization.
+	storage, err := factorystorage.GetStorage(ctx, config)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
 
 	// RabbitMQ client initialization.
 	rabbitClient, err := internalrabbitmq.NewClient(config, logger)
@@ -86,7 +95,7 @@ func main() {
 				logger.Error(err.Error())
 			} else {
 				// Fake sending for receiving notification.
-				SendNotification(notification)
+				SendNotification(ctx, notification, storage, logger)
 			}
 		}
 	}()
@@ -97,6 +106,18 @@ func main() {
 }
 
 // SendNotification sends notification to a fake recipient.
-func SendNotification(notification internalrabbitmq.Notification) {
+func SendNotification(ctx context.Context, notification internalrabbitmq.Notification, storage internalapp.Storage, logger *internallogger.Logger) {
 	fmt.Printf("Notification %v has been successfully sent\n", notification)
+
+	// If notification has been successfully received, setting NotificationReceived flag.
+	event, err := storage.GetEventByID(ctx, notification.ID)
+	if err != nil {
+		logger.Error(err.Error())
+	} else {
+		event.NotificationReceived = true
+		event, err = storage.UpdateEvent(ctx, event)
+		if err != nil {
+			logger.Error(err.Error())
+		}
+	}
 }
